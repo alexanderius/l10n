@@ -5,7 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { TeamComponent } from './team/team.component';
 import { ProjectsComponent } from './team/projects/projects.component';
-import { ProjectComponent } from './team/projects/project/project.component';
+import { ProjectComponent } from './team/project/project.component';
 import { TeamsComponent } from './teams/teams.component';
 
 @NgModule({
