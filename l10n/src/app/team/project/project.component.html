@@ -1,26 +1,30 @@
 <header>
-  <h1>Project name</h1>
+  <div class="page-title">Project name</div>
 </header>
 <main>
-  <table>
-    <thead>
-      <th>Key</th>
-      @for (locale of locales; track locale) {
-        <th>{{ locale }}</th>
-      }
-    </thead>
-    <tbody>
-      @for (key of keys; track key.id) {
-        <ng-container [ngTemplateOutlet]="row" [ngTemplateOutletContext]="{key: key}"></ng-container>
-      }
-    </tbody>
-  </table>
+  <div class="matrix-wrapper">
+    <table class="matrix">
+      <thead>
+        <th>Key</th>
+        @for (locale of locales; track locale) {
+          <th>{{ locale }}</th>
+        }
+      </thead>
+      <tbody>
+        @for (key of keys; track key.id) {
+          <ng-container [ngTemplateOutlet]="row" [ngTemplateOutletContext]="{key: key}"></ng-container>
+        }
+      </tbody>
+    </table>
+  </div>
 </main>
 
 <ng-template #row let-key="key">
   @if(key && key.children) {
     <tr>
-      <td [attr.colspan]="locales.length + 1">+ {{ key.id }}</td>
+      <td [attr.colspan]="locales.length + 1" class="matrix-section">
+        <div>+ {{ key.id }}</div>
+      </td>
     </tr>
     @for(childKey of key.children; track childKey.id) {
       <ng-container [ngTemplateOutlet]="row" [ngTemplateOutletContext]="{key: childKey}"></ng-container>
@@ -28,7 +32,7 @@
   } 
   @if(key && !key.children) {
     <tr>
-      <td>{{ key.id }}</td>
+      <th>{{ key.id }}</th>
       @for (locale of locales; track locale) {
         <td></td>
       }
