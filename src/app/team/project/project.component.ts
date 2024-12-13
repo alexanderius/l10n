@@ -13,7 +13,7 @@ interface LocalizationKey {
   standalone: true
 })
 export class ProjectComponent {
-  locales: any[] = ['en-US', 'es-ES', 'de-DE', 'en-US', 'es-ES','en-US', 'es-ES','en-US', 'es-ES','en-US', 'es-ES','en-US', 'es-ES','en-US', 'es-ES','en-US', 'es-ES','en-US', 'es-ES','en-US', 'es-ES', 'ru-RU'];
+  locales: any[] = ['en-US', 'ru-RU', 'es-ES', 'fr-FR', 'de-DE', 'it-IT', 'ja-JP', 'zh-CN', 'pt-BR', 'ar-SA', 'ko-KR', 'nl-NL', 'sv-SE', 'da-DK', 'fi-FI', 'pl-PL', 'tr-TR', 'hi-IN', 'th-TH'];
   keys: LocalizationKey[] = [{
     id: 'public',
     children: [
@@ -45,7 +45,7 @@ export class ProjectComponent {
       { id: 'signUp24' },
     ]
   }, {
-    id: 'private',
+    id: 'admin',
     children: [
       { id: 'signIn' },
       { id: 'signUp' },
