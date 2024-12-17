@@ -5,10 +5,12 @@
   <div class="matrix-wrapper">
     <table class="matrix">
       <thead>
-        <th>Key</th>
-        @for (locale of locales; track locale) {
-          <th>{{ locale }}</th>
-        }
+        <tr>
+          <th>Key</th>
+          @for (locale of locales; track locale) {
+            <th>{{ locale }}</th>
+          }
+        </tr>
       </thead>
       <tbody>
         @for (key of keys; track key.id) {
