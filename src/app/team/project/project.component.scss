@@ -10,6 +10,9 @@ header {
   height: $header-height;
   margin: 0;
   padding: 0 20px;
+  background-color: #fff;
+  border-bottom: solid 1px $border-color-default;
+  font-size: 1.5em;
 }
 
 main {
@@ -36,7 +39,8 @@ main {
   &-section {
     position: sticky;
     top: $row-height-default;
-    background-color: blueviolet;
+    background-color: $primary-color;
+    color: #fff;
     z-index: 3;
 
     & > div {
@@ -45,10 +49,18 @@ main {
     }
   }
   td, th {
-    border: 1px solid black;
-    padding: 0.8rem 1.2rem;
+    border-right: 1px solid $border-color-default;
+    border-bottom: 1px solid $border-color-default;
+    border-top: 1px solid transparent;
+    border-left: 1px solid transparent;
+    padding: 0.8rem 20px;
     height: $row-height-default;
     min-width: 200px;
+  }
+
+  td[colspan],
+  td:hover {
+    border: 1px solid $primary-color;
   }
 
   thead {
@@ -59,6 +71,7 @@ main {
       z-index: 1;
       width: 25vw;
       background: white;
+      font-weight: 400;
 
       &:first-child {
         position: sticky;
@@ -73,7 +86,9 @@ main {
       position: sticky;
       left: 0;
       background: white;
+      font-weight: 400;
       z-index: 1;
+      text-align: left;
     }
   }
 }

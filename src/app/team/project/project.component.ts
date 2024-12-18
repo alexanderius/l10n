@@ -1,5 +1,5 @@
 import { CommonModule, NgTemplateOutlet } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 
 interface LocalizationKey {
   id: string;
@@ -75,4 +75,11 @@ export class ProjectComponent {
       { id: 'signUp24' },
     ]
   }];
+
+  scrollOffestX = 0;
+
+  @HostListener('window:scroll', ['$event'])
+  onWindowScroll(event: Event) {
+    this.scrollOffestX = window.scrollX; // horizontal scroll position
+  }
 }
