@@ -1,0 +1,67 @@
+@import "../../../styles/settings";
+
+main {
+  margin-top: $project-header-height;
+  padding: 20px;
+}
+
+.projects {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 20px;
+
+  li {
+    display: flex;
+    border-radius: $border-radius-default;
+    border: solid 1px $border-color-default;
+    width: 400px;
+    
+    height: 250px;
+    background-color: #fff;
+    box-shadow: none;
+    transition: box-shadow 0.3s ease-in-out;
+    cursor: pointer;
+    position: relative;
+    align-items: flex-end;
+
+    &:hover {
+      box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+      transition: box-shadow 0.3s ease-in-out;
+    }
+
+    a.tile {
+      width: 100%;
+      height: 100%;
+      padding: 40px;
+      color: #000;
+      text-decoration: none;
+      display: inline-flex;
+      flex-direction: column;
+    }
+
+    a.project {
+      justify-content: end;
+      .title {
+        font-size: 2em;
+        line-height: 2.1em;
+      }
+      .meta,
+      .locales {
+        font-size: 1em;
+        line-height: 1.5em;
+        color: #777;
+      }
+      
+    }
+
+    a.new {
+      align-items: center;
+      justify-content: center;
+      .material-icons {
+        font-size: 4em;
+      }
+    }
+  }
+}

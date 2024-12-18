@@ -1,13 +1,15 @@
-$header-height: 40px;
-$row-height-default: 40px;
+@import "../../../styles/settings";
+
+$header-height: $project-header-height;
+$row-height-default: $project-header-height;
 
 header {
   display: flex;
   align-items: center;
-  max-height: 40px;
-  height: 40px;
+  max-height: $header-height;
+  height: $header-height;
   margin: 0;
-  background-color: aqua;
+  padding: 0 20px;
 }
 
 main {

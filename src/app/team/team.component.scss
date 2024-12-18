@@ -1,10 +1,20 @@
+@import "../../styles/settings";
+
+.team-content {
+  background-color: $background-light-grey;
+  height: calc(100vh - $project-header-height);
+}
+
 .team-user {
-  background-color: aqua;
   position: absolute;
   display: flex;
   width: fit-content;
   flex-direction: row;
   justify-self: flex-end;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 20px;
   top: 0;
   right: 0;
+  height: $project-header-height;
 }

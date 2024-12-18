@@ -11,7 +11,6 @@ export const routes: Routes = [
     children: [
       { path: 'projects', component: ProjectsComponent }, 
       { path: 'projects/:projectId', component: ProjectComponent }, 
-      { path: 'projects', redirectTo: 'teams/:teamId/projects/default/', pathMatch: 'full' }
     ]
   }, 
   { path: '**', redirectTo: 'teams/default/projects/default/', pathMatch: 'full' },
