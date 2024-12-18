@@ -1,5 +1,7 @@
 import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { Component, HostListener } from '@angular/core';
+import { Title } from '@angular/platform-browser';
+import { PageMetaService } from '../../_serivices/page-meta.service';
 
 interface LocalizationKey {
   id: string;
@@ -13,73 +15,17 @@ interface LocalizationKey {
   standalone: true
 })
 export class ProjectComponent {
-  locales: any[] = ['en-US', 'ru-RU', 'es-ES', 'fr-FR', 'de-DE', 'it-IT', 'ja-JP', 'zh-CN', 'pt-BR', 'ar-SA', 'ko-KR', 'nl-NL', 'sv-SE', 'da-DK', 'fi-FI', 'pl-PL', 'tr-TR', 'hi-IN', 'th-TH'];
-  keys: LocalizationKey[] = [{
-    id: 'public',
-    children: [
-      { id: 'signIn' },
-      { id: 'signUp' },
-      { id: 'signIn1' },
-      { id: 'signUp2' },
-      { id: 'signIn3' },
-      { id: 'signUp4' },
-      { id: 'signIn5' },
-      { id: 'signUp6' },
-      { id: 'signIn7' },
-      { id: 'signUp8' },
-      { id: 'signIn9' },
-      { id: 'signUp10' },
-      { id: 'signIn11' },
-      { id: 'signUp12' },
-      { id: 'signIn13' },
-      { id: 'signUp14' },
-      { id: 'signIn15' },
-      { id: 'signUp16' },
-      { id: 'signIn17' },
-      { id: 'signUp18' },
-      { id: 'signIn19' },
-      { id: 'signUp20' },
-      { id: 'signIn21' },
-      { id: 'signUp22' },
-      { id: 'signIn23' },
-      { id: 'signUp24' },
-    ]
-  }, {
-    id: 'admin',
-    children: [
-      { id: 'signIn' },
-      { id: 'signUp' },
-      { id: 'signIn1' },
-      { id: 'signUp2' },
-      { id: 'signIn3' },
-      { id: 'signUp4' },
-      { id: 'signIn5' },
-      { id: 'signUp6' },
-      { id: 'signIn7' },
-      { id: 'signUp8' },
-      { id: 'signIn9' },
-      { id: 'signUp10' },
-      { id: 'signIn11' },
-      { id: 'signUp12' },
-      { id: 'signIn13' },
-      { id: 'signUp14' },
-      { id: 'signIn15' },
-      { id: 'signUp16' },
-      { id: 'signIn17' },
-      { id: 'signUp18' },
-      { id: 'signIn19' },
-      { id: 'signUp20' },
-      { id: 'signIn21' },
-      { id: 'signUp22' },
-      { id: 'signIn23' },
-      { id: 'signUp24' },
-    ]
-  }];
+  locales: any[] = [];
+  keys: LocalizationKey[] = [];
 
   scrollOffestX = 0;
 
   @HostListener('window:scroll', ['$event'])
   onWindowScroll(event: Event) {
     this.scrollOffestX = window.scrollX; // horizontal scroll position
+  }
+
+  constructor(private pageMetaService: PageMetaService) {
+    this.pageMetaService.pageTitle = 'Project Details';
   }
 }

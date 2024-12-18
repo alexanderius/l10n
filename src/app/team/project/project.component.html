@@ -1,25 +1,30 @@
-<header>
-  <div class="page-title">Demo Project</div>
-</header>
-<main>
-  <div class="matrix-wrapper">
-    <table class="matrix">
-      <thead>
-        <tr>
-          <th>Key</th>
-          @for (locale of locales; track locale) {
-            <th>{{ locale }}</th>
+<div class="container">
+  @if(keys.length == 0 || locales.length == 0) {
+    <div>
+
+    </div>
+  }
+  @else {
+    <div class="matrix-wrapper">
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th>Key</th>
+            @for (locale of locales; track locale) {
+              <th>{{ locale }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (key of keys; track key.id) {
+            <ng-container [ngTemplateOutlet]="row" [ngTemplateOutletContext]="{key: key}"></ng-container>
           }
-        </tr>
-      </thead>
-      <tbody>
-        @for (key of keys; track key.id) {
-          <ng-container [ngTemplateOutlet]="row" [ngTemplateOutletContext]="{key: key}"></ng-container>
-        }
-      </tbody>
-    </table>
-  </div>
-</main>
+        </tbody>
+      </table>
+    </div>
+  }
+  
+</div>
 
 <ng-template #row let-key="key">
   @if(key && key.children) {

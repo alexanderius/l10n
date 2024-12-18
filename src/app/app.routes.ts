@@ -13,7 +13,7 @@ export const routes: Routes = [
       { path: 'projects/:projectId', component: ProjectComponent }, 
     ]
   }, 
-  { path: '**', redirectTo: 'teams/default/projects/default/', pathMatch: 'full' },
+  { path: '**', redirectTo: 'teams/default/projects/', pathMatch: 'full' },
   { path: '', redirectTo: 'teams', pathMatch: 'full' },
 
 ];

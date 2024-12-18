@@ -1,22 +1,10 @@
 @import "../../../styles/settings";
 
-$header-height: $project-header-height;
-$row-height-default: $project-header-height;
+$row-height-default: $header-height;
 
-header {
-  display: flex;
-  align-items: center;
-  max-height: $header-height;
-  height: $header-height;
-  margin: 0;
-  padding: 0 20px;
-  background-color: #fff;
-  border-bottom: solid 1px $border-color-default;
-  font-size: 1.5em;
-}
-
-main {
+.container {
   overflow: hidden;
+  height: 100%;
 }
 
 .matrix-wrapper {

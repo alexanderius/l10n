@@ -1,8 +1,30 @@
 @import "../../styles/settings";
 
-.team-content {
+:host {
+  height: 100vh;
+}
+
+header {
+  height: $header-height;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  max-height: $header-height;
+  height: $header-height;
+  margin: 0;
+  padding: 0 20px;
+  background-color: #fff;
+  border-bottom: solid 1px $border-color-default;
+  font-size: 1.5em;
+}
+
+main {
+  margin-top: $header-height;
+  height: calc(100vh - $header-height);
   background-color: $background-light-grey;
-  height: calc(100vh - $project-header-height);
 }
 
 .team-user {
@@ -16,5 +38,5 @@
   padding: 5px 20px;
   top: 0;
   right: 0;
-  height: $project-header-height;
+  height: $header-height;
 }
