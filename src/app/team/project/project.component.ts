@@ -2,6 +2,7 @@ import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { Component, HostListener } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { PageMetaService } from '../../_serivices/page-meta.service';
+import { DropZoneDirective } from '../../_directives/drop-zone.directive';
 
 interface LocalizationKey {
   id: string;
@@ -9,7 +10,7 @@ interface LocalizationKey {
 }
 
 @Component({
-  imports: [CommonModule, NgTemplateOutlet],
+  imports: [CommonModule, NgTemplateOutlet, DropZoneDirective],
   templateUrl: './project.component.html',
   styleUrls: ['./project.component.scss'],
   standalone: true
@@ -27,5 +28,9 @@ export class ProjectComponent {
 
   constructor(private pageMetaService: PageMetaService) {
     this.pageMetaService.pageTitle = 'Project Details';
+  }
+
+  filesDropped($event: any): any {
+    console.log('file(s) dropped', $event);
   }
 }

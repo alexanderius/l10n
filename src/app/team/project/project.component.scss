@@ -2,9 +2,31 @@
 
 $row-height-default: $header-height;
 
+.drop-files-mesage {
+  display: none;
+}
+
 .container {
   overflow: hidden;
   height: 100%;
+
+  &.drop-zone {
+    &.file-over {
+      background-color: #22ff2222;
+
+      .drop-files-mesage {
+        display: block;
+        position: absolute;
+        top: calc(50vh - 15px);
+        width: 100%;
+        text-align: center;
+      }
+
+      .drag-files-mesage {
+        display: none;
+      }
+    }
+  }
 }
 
 .matrix-wrapper {
@@ -80,3 +102,4 @@ $row-height-default: $header-height;
     }
   }
 }
+

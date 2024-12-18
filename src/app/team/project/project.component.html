@@ -1,7 +1,7 @@
-<div class="container">
+<div class="container drop-zone" appDropZone (fileDrop)="filesDropped($event)">
   @if(keys.length == 0 || locales.length == 0) {
-    <div>
-
+    <div class="drag-files-mesage">
+      Drag & drop files here
     </div>
   }
   @else {
@@ -24,6 +24,9 @@
     </div>
   }
   
+  <div class="drop-files-mesage">
+    Drop files here...
+  </div>
 </div>
 
 <ng-template #row let-key="key">
