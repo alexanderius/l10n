@@ -29,7 +29,7 @@
   </div>
 </div>
 
-<ng-template #row let-key="key">
+<ng-template #row let-key="key" let-parentPrefix="parentPrefix">
   @if(key && key.children) {
     <tr>
       <td [attr.colspan]="locales.length + 1" class="matrix-section">
@@ -37,14 +37,22 @@
       </td>
     </tr>
     @for(childKey of key.children; track childKey.id) {
-      <ng-container [ngTemplateOutlet]="row" [ngTemplateOutletContext]="{key: childKey}"></ng-container>
+      <ng-container [ngTemplateOutlet]="row" [ngTemplateOutletContext]="{key: childKey, parentPrefix: parentPrefix == null ? (key.id + '.'): parentPrefix}"></ng-container>
     }
   } 
   @if(key && !key.children) {
     <tr>
       <th>{{ key.id }}</th>
       @for (locale of locales; track locale) {
-        <td></td>
+        <td >
+          @if(translations[locale][parentPrefix + key.id]?.e) {
+            <input type="text" [(ngModel)]="translations[locale][parentPrefix + key.id].v">
+          } 
+          @else {
+            <div (click)="translations[locale][parentPrefix + key.id].e = true">{{ translations[locale][parentPrefix + key.id]?.v }}</div>
+          }
+          
+        </td>
       }
     </tr>
     

@@ -43,17 +43,12 @@ export class DropZoneDirective {
     
     e.dataTransfer!.items.clear();
 
-    this.fileDrop.emit({
-      files: this.files,
-      folders: this.folders
-    });
-
-    // setTimeout(()=>{
-    //   this.fileDrop.emit({
-    //     files: this.files,
-    //     folders: this.folders
-    //   });
-    // }, 1000); // todo: check if we still need a delay of 1000ms here
+    setTimeout(()=>{
+      this.fileDrop.emit({
+        files: this.files,
+        folders: this.folders
+      });
+    }, 1000); // todo: check if we still need a delay of 1000ms here
   }
 
   @HostListener('body:dragover', ['$event']) onBodyDragOver(e: DragEvent) {
