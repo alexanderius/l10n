@@ -58,14 +58,15 @@ $row-height-default: $header-height;
       left: 0;
     }
   }
-  td, th {
+  td,
+  th {
     border-right: 1px solid $border-color-default;
     border-bottom: 1px solid $border-color-default;
     border-top: 1px solid transparent;
     border-left: 1px solid transparent;
     padding: 0.8rem 20px;
     height: $row-height-default;
-    min-width: 200px;
+    max-width: 400px;
   }
 
   td[colspan],
@@ -89,7 +90,7 @@ $row-height-default: $header-height;
         z-index: 2;
       }
     }
-  } 
+  }
 
   tbody {
     th {
@@ -102,4 +103,3 @@ $row-height-default: $header-height;
     }
   }
 }
-
