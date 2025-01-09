@@ -51,6 +51,7 @@
       <input
         type="text"
         [(ngModel)]="translations[locale][parentPrefix + key.id].v"
+        (blur)="exitEditMode(locale, parentPrefix + key.id)"
       />
       } @else {
       <div (click)="editMode(locale, parentPrefix + key.id)">

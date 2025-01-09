@@ -17,8 +17,8 @@ export class ProjectComponent {
   keys: LocalizationKey[] = [];
   translations: any = {};
 
-  currentEditLocale: string | null = null;
-  currentEditCell: string | null = null;
+  currenLocale: string | null = null;
+  currentKeyId: string | null = null;
 
   scrollOffestX = 0;
 
@@ -151,18 +151,10 @@ export class ProjectComponent {
     const currentEditKey = this.translations[locale][keyId];
 
     if (currentEditKey) {
-      // if (this.currentEditLocale === locale && this.currentEditCell === keyId) {
-      //   currentEditKey.e = false;
-      //   this.currentEditLocale = null;
-      //   this.currentEditCell = null;
-      //   console.log('вышел из режима редактирования');
-      //   return;
-      // }
-
       // Turn off editing mode for the previous cell
-      if (this.currentEditLocale && this.currentEditCell) {
+      if (this.currenLocale && this.currentKeyId) {
         const prevTranslation =
-          this.translations[this.currentEditLocale][this.currentEditCell];
+          this.translations[this.currenLocale][this.currentKeyId];
         if (prevTranslation) {
           prevTranslation.e = false;
         }
@@ -170,8 +162,16 @@ export class ProjectComponent {
 
       // Turn on editing mode for a new cell
       currentEditKey.e = true;
-      this.currentEditLocale = locale;
-      this.currentEditCell = keyId;
+      this.currenLocale = locale;
+      this.currentKeyId = keyId;
+    }
+  }
+
+  exitEditMode(locale: string, keyId: string): void {
+    const currentEditKey = this.translations[locale][keyId];
+
+    if (currentEditKey) {
+      currentEditKey.e = false;
     }
   }
 }
