@@ -58,6 +58,11 @@ $row-height-default: $header-height;
       left: 0;
     }
   }
+
+  input {
+    width: 100%;
+  }
+
   td,
   th {
     border-right: 1px solid $border-color-default;
@@ -67,6 +72,8 @@ $row-height-default: $header-height;
     padding: 0.8rem 20px;
     height: $row-height-default;
     max-width: 400px;
+    white-space: normal;
+    text-align: justify;
   }
 
   td[colspan],
