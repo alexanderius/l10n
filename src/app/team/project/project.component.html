@@ -1,62 +1,65 @@
 <div class="container drop-zone" appDropZone (fileDrop)="filesDropped($event)">
   @if(keys.length == 0 || locales.length == 0) {
-    <div class="drag-files-mesage">
-      Drag & drop files here
-    </div>
-  }
-  @else {
-    <div class="matrix-wrapper">
-      <table class="matrix">
-        <thead>
-          <tr>
-            <th>Key</th>
-            @for (locale of locales; track locale) {
-              <th>{{ locale }}</th>
-            }
-          </tr>
-        </thead>
-        <tbody>
-          @for (key of keys; track key.id) {
-            <ng-container [ngTemplateOutlet]="row" [ngTemplateOutletContext]="{key: key}"></ng-container>
+  <div class="drag-files-mesage">Drag & drop files here</div>
+  } @else {
+  <div class="matrix-wrapper">
+    <table class="matrix">
+      <thead>
+        <tr>
+          <th>Key</th>
+          @for (locale of locales; track locale) {
+          <th>{{ locale }}</th>
           }
-        </tbody>
-      </table>
-    </div>
-  }
-  
-  <div class="drop-files-mesage">
-    Drop files here...
+        </tr>
+      </thead>
+      <tbody>
+        @for (key of keys; track key.id) {
+        <ng-container
+          [ngTemplateOutlet]="row"
+          [ngTemplateOutletContext]="{ key: key }"
+        ></ng-container>
+        }
+      </tbody>
+    </table>
   </div>
+  }
+
+  <div class="drop-files-mesage">Drop files here...</div>
 </div>
 
 <ng-template #row let-key="key" let-parentPrefix="parentPrefix">
   @if(key && key.children) {
-    <tr>
-      <td [attr.colspan]="locales.length + 1" class="matrix-section">
-        <div style="display: inline-flex; left: 21px;">+ {{ key.id }}</div>
-      </td>
-    </tr>
-    @for(childKey of key.children; track childKey.id) {
-      <ng-container [ngTemplateOutlet]="row" [ngTemplateOutletContext]="{key: childKey, parentPrefix: parentPrefix == null ? (key.id + '.'): parentPrefix}"></ng-container>
-    }
-  } 
-  @if(key && !key.children) {
-    <tr>
-      <th>{{ key.id }}</th>
-      @for (locale of locales; track locale) {
-        <td >
-          @if(translations[locale][parentPrefix + key.id]?.e) {
-            <input type="text" [(ngModel)]="translations[locale][parentPrefix + key.id].v">
-          } 
-          @else {
-            <div (click)="translations[locale][parentPrefix + key.id].e = true">{{ translations[locale][parentPrefix + key.id]?.v }}</div>
-          }
-          
-        </td>
+  <tr>
+    <td [attr.colspan]="locales.length + 1" class="matrix-section">
+      <div style="display: inline-flex; left: 21px">+ {{ key.id }}</div>
+    </td>
+  </tr>
+  @for(childKey of key.children; track childKey.id) {
+  <ng-container
+    [ngTemplateOutlet]="row"
+    [ngTemplateOutletContext]="{
+      key: childKey,
+      parentPrefix: parentPrefix == null ? key.id + '.' : parentPrefix
+    }"
+  ></ng-container>
+  } } @if(key && !key.children) {
+  <tr>
+    <th>{{ key.id }}</th>
+    @for (locale of locales; track locale) {
+    <td>
+      @if(translations[locale][parentPrefix + key.id]?.e) {
+      <input
+        type="text"
+        [(ngModel)]="translations[locale][parentPrefix + key.id].v"
+      />
+      } @else {
+      <div (click)="editMode(locale, parentPrefix + key.id)">
+        {{ translations[locale][parentPrefix + key.id]?.v }}
+      </div>
       }
-    </tr>
-    
-  } 
+    </td>
+    }
+  </tr>
 
-  
+  }
 </ng-template>

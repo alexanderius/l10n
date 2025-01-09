@@ -10,12 +10,15 @@ import { UtilsService } from '../../_serivices/utils.service';
   imports: [CommonModule, FormsModule, NgTemplateOutlet, DropZoneDirective],
   templateUrl: './project.component.html',
   styleUrls: ['./project.component.scss'],
-  standalone: true
+  standalone: true,
 })
 export class ProjectComponent {
   locales: any[] = [];
   keys: LocalizationKey[] = [];
   translations: any = {};
+
+  currentEditLocale: string | null = null;
+  currentEditCell: string | null = null;
 
   scrollOffestX = 0;
 
@@ -24,7 +27,10 @@ export class ProjectComponent {
     this.scrollOffestX = window.scrollX; // horizontal scroll position
   }
 
-  constructor(private pageMetaService: PageMetaService, private utilsService: UtilsService) {
+  constructor(
+    private pageMetaService: PageMetaService,
+    private utilsService: UtilsService
+  ) {
     this.pageMetaService.pageTitle = 'Project Details';
   }
 
@@ -39,11 +45,11 @@ export class ProjectComponent {
       const file = $event.files[i].data;
 
       switch (file.type) {
-        case 'application/json': 
+        case 'application/json':
           this.importFromJson(file);
           break;
 
-        default: 
+        default:
           continue;
       }
     }
@@ -58,10 +64,8 @@ export class ProjectComponent {
   importFromJson(file: File): void {
     const reader = new FileReader();
     reader.onload = (e) => {
-
       // assuming file name is the name of locale
       const locale = file.name.substring(0, file.name.indexOf('.'));
-      console.log(locale);
       if (this.locales.indexOf(locale) < 0) {
         this.locales.push(locale);
         this.translations[locale] = {};
@@ -71,19 +75,18 @@ export class ProjectComponent {
       let json = JSON.parse(jsonString);
 
       const flatKeys = this.getFlatKeys(json);
-      for(let j = 0; j < flatKeys.length; j++) {
+      for (let j = 0; j < flatKeys.length; j++) {
         const keyPathSegments = flatKeys[j].split('.');
-
 
         this.translations[locale][flatKeys[j]] = {
           e: false, // edit mode
-          v: null // value
+          v: null, // value
         };
 
-        let current = {...json};
+        let current = { ...json };
         let keyPathSegmentIndex = 0;
         for (const keyPathSegment of keyPathSegments) {
-          keyPathSegmentIndex ++;
+          keyPathSegmentIndex++;
           // check if the current object has the key
           if (current && keyPathSegment in current) {
             current = current[keyPathSegment]; // move deeper into the object
@@ -91,9 +94,8 @@ export class ProjectComponent {
             break;
           }
 
-
-          this.translations[locale][flatKeys[j]].v = keyPathSegmentIndex == keyPathSegments.length
-            ? current : null;
+          this.translations[locale][flatKeys[j]].v =
+            keyPathSegmentIndex == keyPathSegments.length ? current : null;
 
           // console.log(flatKeys[j], current);
         }
@@ -104,7 +106,7 @@ export class ProjectComponent {
       this.keys = this.utilsService.mergeArraysById(this.keys, keys);
     };
 
-    reader.readAsText(file); 
+    reader.readAsText(file);
   }
 
   // flatten the hierarchy of keys
@@ -114,7 +116,7 @@ export class ProjectComponent {
     for (const key in obj) {
       // Create a new key string with the parent key if it exists
       const newKey = parentKey ? `${parentKey}.${key}` : key;
-        
+
       // If the value is an object, recurse into it
       if (typeof obj[key] === 'object' && obj[key] !== null) {
         keys = keys.concat(this.getFlatKeys(obj[key], newKey));
@@ -135,7 +137,6 @@ export class ProjectComponent {
 
       // check if the value is an object and not null
       if (typeof obj[key] === 'object' && obj[key] !== null) {
-          
         // Recursively get children
         item.children = this.getKeysWithChildren(obj[key]);
       }
@@ -144,5 +145,33 @@ export class ProjectComponent {
     }
 
     return result;
+  }
+
+  editMode(locale: string, keyId: string): void {
+    const currentEditKey = this.translations[locale][keyId];
+
+    if (currentEditKey) {
+      // if (this.currentEditLocale === locale && this.currentEditCell === keyId) {
+      //   currentEditKey.e = false;
+      //   this.currentEditLocale = null;
+      //   this.currentEditCell = null;
+      //   console.log('вышел из режима редактирования');
+      //   return;
+      // }
+
+      // Turn off editing mode for the previous cell
+      if (this.currentEditLocale && this.currentEditCell) {
+        const prevTranslation =
+          this.translations[this.currentEditLocale][this.currentEditCell];
+        if (prevTranslation) {
+          prevTranslation.e = false;
+        }
+      }
+
+      // Turn on editing mode for a new cell
+      currentEditKey.e = true;
+      this.currentEditLocale = locale;
+      this.currentEditCell = keyId;
+    }
   }
 }
