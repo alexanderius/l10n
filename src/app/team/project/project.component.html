@@ -8,7 +8,7 @@
         <tr>
           <th>Key</th>
           @for (locale of locales; track locale) {
-          <th>{{ locale }}</th>
+          <th (click)="downloadDocs(locale)">{{ locale }}</th>
           }
         </tr>
       </thead>

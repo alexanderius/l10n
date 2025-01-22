@@ -5,6 +5,7 @@ import { PageMetaService } from '../../_serivices/page-meta.service';
 import { DropZoneDirective } from '../../_directives/drop-zone.directive';
 import { LocalizationKey } from '../../_models/localization-key.model';
 import { UtilsService } from '../../_serivices/utils.service';
+import { saveAs } from 'file-saver';
 
 @Component({
   imports: [CommonModule, FormsModule, NgTemplateOutlet, DropZoneDirective],
@@ -173,5 +174,25 @@ export class ProjectComponent {
     if (currentEditKey) {
       currentEditKey.e = false;
     }
+  }
+
+  // Метод для скачивания документа на ПК
+  downloadDocs(locale: string): void {
+    console.log(`Я кликнул по локали: ${locale}`);
+    const localeTranslations = this.translations[locale];
+
+    console.log(localeTranslations);
+
+    // Преобразуем переводы в плоский объект
+    const flatTranslations: { [key: string]: string | number | null } = {};
+    Object.keys(localeTranslations).forEach((key) => {
+      flatTranslations[key] = localeTranslations[key].v;
+    });
+
+    const blob = new Blob([JSON.stringify(flatTranslations, null, 2)], {
+      type: 'application/json;charset=utf-8',
+    });
+
+    saveAs(blob, `${locale}-update.json`);
   }
 }
