@@ -59,7 +59,7 @@
       </div>
       
       } @else {
-      <div (click)="editMode(locale, parentPrefix + key.id)">
+      <div class="text" (click)="editMode(locale, parentPrefix + key.id)">
         {{ translations[locale][parentPrefix + key.id]?.v }}
       </div>
       }
