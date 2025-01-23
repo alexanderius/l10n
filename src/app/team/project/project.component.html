@@ -48,11 +48,16 @@
     @for (locale of locales; track locale) {
     <td>
       @if(translations[locale][parentPrefix + key.id]?.e) {
-      <input
-        type="text"
-        [(ngModel)]="translations[locale][parentPrefix + key.id].v"
-        (blur)="exitEditMode(locale, parentPrefix + key.id)"
-      />
+      <div class="grow-wrap">
+        <textarea
+          type="text"
+          [(ngModel)]="translations[locale][parentPrefix + key.id].v"
+          (input)="resizeTextarea($event)"
+          (blur)="exitEditMode(locale, parentPrefix + key.id)"
+        >
+        </textarea>
+      </div>
+      
       } @else {
       <div (click)="editMode(locale, parentPrefix + key.id)">
         {{ translations[locale][parentPrefix + key.id]?.v }}

@@ -195,4 +195,8 @@ export class ProjectComponent {
 
     saveAs(blob, `${locale}-update.json`);
   }
+
+  resizeTextarea(e: any): void {
+    e.target.parentNode.dataset.replicatedValue = e.target.value;
+  }
 }
