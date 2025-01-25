@@ -69,11 +69,29 @@ $row-height-default: $header-height;
     border-bottom: 1px solid $border-color-default;
     border-top: 1px solid transparent;
     border-left: 1px solid transparent;
-    padding: 0.8rem 20px;
+    padding: 0;
     height: $row-height-default;
     max-width: 400px;
     white-space: normal;
     text-align: justify;
+
+    textarea {
+      border: solid 1px transparent;
+      outline: none;
+      resize: none;
+      background: #fff;
+      width: 100%;
+      padding: 0.8rem 20px;
+
+      &:active,
+      &:focus {
+        border: solid 1px $primary-color;
+      }
+    }
+
+    .text {
+      padding: 0.8rem 20px;
+    }
   }
 
   td[colspan],

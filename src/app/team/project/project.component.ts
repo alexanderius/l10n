@@ -232,4 +232,8 @@ export class ProjectComponent {
 
     return rtlRegex.test(text);
   }
+
+  resizeTextarea(e: any): void {
+    e.target.parentNode.dataset.replicatedValue = e.target.value;
+  }
 }
