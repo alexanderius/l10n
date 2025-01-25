@@ -7,6 +7,12 @@ import { LocalizationKey } from '../../_models/localization-key.model';
 import { UtilsService } from '../../_serivices/utils.service';
 import { saveAs } from 'file-saver';
 
+// export interface Locale {
+//   code: string;
+//   name?: string;
+//   isRtl: boolean;
+// }
+
 @Component({
   imports: [CommonModule, FormsModule, NgTemplateOutlet, DropZoneDirective],
   templateUrl: './project.component.html',
@@ -67,6 +73,9 @@ export class ProjectComponent {
     reader.onload = (e) => {
       // assuming file name is the name of locale
       const locale = file.name.substring(0, file.name.indexOf('.'));
+
+      console.log(locale);
+
       if (this.locales.indexOf(locale) < 0) {
         this.locales.push(locale);
         this.translations[locale] = {};
@@ -178,21 +187,49 @@ export class ProjectComponent {
 
   // Метод для скачивания документа на ПК
   downloadDocs(locale: string): void {
-    console.log(`Я кликнул по локали: ${locale}`);
     const localeTranslations = this.translations[locale];
-
-    console.log(localeTranslations);
-
-    // Преобразуем переводы в плоский объект
     const flatTranslations: { [key: string]: string | number | null } = {};
+
     Object.keys(localeTranslations).forEach((key) => {
       flatTranslations[key] = localeTranslations[key].v;
     });
 
-    const blob = new Blob([JSON.stringify(flatTranslations, null, 2)], {
+    const nestedTranslations = this.restoreNestedObject(flatTranslations);
+
+    const blob = new Blob([JSON.stringify(nestedTranslations, null, 2)], {
       type: 'application/json;charset=utf-8',
     });
 
     saveAs(blob, `${locale}-update.json`);
+  }
+
+  // Метод возврата плоского объекта во вложенный
+  restoreNestedObject(flatObject: { [key: string]: any }): any {
+    const result: { [key: string]: any } = {};
+
+    Object.keys(flatObject).forEach((key) => {
+      const value = flatObject[key];
+      const parts = key.split('.');
+
+      let current = result;
+
+      for (let i = 0; i < parts.length - 1; i++) {
+        const part = parts[i];
+        current[part] = current[part] || {};
+        current = current[part];
+      }
+
+      current[parts[parts.length - 1]] = value;
+    });
+
+    return result;
+  }
+
+  containsRTL(text: string): boolean {
+    // Regular expression to match RTL Unicode characters
+    const rtlRegex =
+      /[\u0590-\u05FF\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB1D-\uFB4F\uFB50-\uFDFF\uFE70-\uFEFF]/;
+
+    return rtlRegex.test(text);
   }
 }
