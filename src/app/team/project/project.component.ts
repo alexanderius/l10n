@@ -74,7 +74,6 @@ export class ProjectComponent {
       // assuming file name is the name of locale
       const locale = file.name.substring(0, file.name.indexOf('.'));
 
-      // Проверка на существование локали
       if (this.locales.findIndex((l) => l.code === locale) < 0) {
         const localeObject: Locale = {
           code: locale,
@@ -190,7 +189,6 @@ export class ProjectComponent {
     }
   }
 
-  // Метод для скачивания документа на ПК
   downloadDocs(locale: any): void {
     const localeTranslations = this.translations[locale];
     const flatTranslations: { [key: string]: string | number | null } = {};
@@ -208,7 +206,7 @@ export class ProjectComponent {
     saveAs(blob, `${locale}-update.json`);
   }
 
-  // Метод возврата плоского объекта во вложенный
+  // Transforming a flatobject into a nested
   restoreNestedObj(flatObject: { [key: string]: any }): any {
     const result: { [key: string]: any } = {};
 
