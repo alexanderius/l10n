@@ -191,7 +191,7 @@ export class ProjectComponent {
   }
 
   // Метод для скачивания документа на ПК
-  downloadDocs(locale: string): void {
+  downloadDocs(locale: any): void {
     const localeTranslations = this.translations[locale];
     const flatTranslations: { [key: string]: string | number | null } = {};
 
