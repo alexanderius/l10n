@@ -7,8 +7,8 @@
       <thead>
         <tr>
           <th>Key</th>
-          @for (locale of locales; track locale) {
-          <th (click)="downloadDocs(locale)">{{ locale }}</th>
+          @for (locale of locales; track locale.code) {
+          <th (click)="downloadDocs(locale)">{{ locale.code }}</th>
           }
         </tr>
       </thead>
@@ -45,22 +45,23 @@
   } } @if(key && !key.children) {
   <tr>
     <th>{{ key.id }}</th>
-    @for (locale of locales; track locale) {
-    <td>
-      @if(translations[locale][parentPrefix + key.id]?.e) {
+    @for (locale of locales; track locale.code) {
+    <td [attr.dir]="locale.isRtl ? 'rtl' : 'ltr'">
+      @if(translations[locale.code][parentPrefix + key.id]?.e) {
       <div class="grow-wrap">
         <textarea
+          [attr.dir]="locale.isRtl ? 'rtl' : 'ltr'"
           type="text"
-          [(ngModel)]="translations[locale][parentPrefix + key.id].v"
+          [(ngModel)]="translations[locale.code][parentPrefix + key.id].v"
           (input)="resizeTextarea($event)"
-          (blur)="exitEditMode(locale, parentPrefix + key.id)"
+          (blur)="exitEditMode(locale.code, parentPrefix + key.id)"
         >
         </textarea>
       </div>
-      
+
       } @else {
-      <div class="text" (click)="editMode(locale, parentPrefix + key.id)">
-        {{ translations[locale][parentPrefix + key.id]?.v }}
+      <div class="text" (click)="editMode(locale.code, parentPrefix + key.id)">
+        {{ translations[locale.code][parentPrefix + key.id]?.v }}
       </div>
       }
     </td>

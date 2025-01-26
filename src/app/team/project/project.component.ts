@@ -7,11 +7,11 @@ import { LocalizationKey } from '../../_models/localization-key.model';
 import { UtilsService } from '../../_serivices/utils.service';
 import { saveAs } from 'file-saver';
 
-// export interface Locale {
-//   code: string;
-//   name?: string;
-//   isRtl: boolean;
-// }
+export interface Locale {
+  code: string;
+  name?: string;
+  isRtl: boolean;
+}
 
 @Component({
   imports: [CommonModule, FormsModule, NgTemplateOutlet, DropZoneDirective],
@@ -20,7 +20,7 @@ import { saveAs } from 'file-saver';
   standalone: true,
 })
 export class ProjectComponent {
-  locales: any[] = [];
+  locales: Locale[] = [];
   keys: LocalizationKey[] = [];
   translations: any = {};
 
@@ -74,10 +74,15 @@ export class ProjectComponent {
       // assuming file name is the name of locale
       const locale = file.name.substring(0, file.name.indexOf('.'));
 
-      console.log(locale);
+      // Проверка на существование локали
+      if (this.locales.findIndex((l) => l.code === locale) < 0) {
+        const localeObject: Locale = {
+          code: locale,
+          name: locale,
+          isRtl: this.containsRTL(e.target?.result as string),
+        };
 
-      if (this.locales.indexOf(locale) < 0) {
-        this.locales.push(locale);
+        this.locales.push(localeObject);
         this.translations[locale] = {};
       }
 
@@ -85,6 +90,7 @@ export class ProjectComponent {
       let json = JSON.parse(jsonString);
 
       const flatKeys = this.getFlatKeys(json);
+
       for (let j = 0; j < flatKeys.length; j++) {
         const keyPathSegments = flatKeys[j].split('.');
 
@@ -112,7 +118,6 @@ export class ProjectComponent {
       }
 
       const keys = this.getKeysWithChildren(json);
-
       this.keys = this.utilsService.mergeArraysById(this.keys, keys);
     };
 
@@ -194,7 +199,7 @@ export class ProjectComponent {
       flatTranslations[key] = localeTranslations[key].v;
     });
 
-    const nestedTranslations = this.restoreNestedObject(flatTranslations);
+    const nestedTranslations = this.restoreNestedObj(flatTranslations);
 
     const blob = new Blob([JSON.stringify(nestedTranslations, null, 2)], {
       type: 'application/json;charset=utf-8',
@@ -204,7 +209,7 @@ export class ProjectComponent {
   }
 
   // Метод возврата плоского объекта во вложенный
-  restoreNestedObject(flatObject: { [key: string]: any }): any {
+  restoreNestedObj(flatObject: { [key: string]: any }): any {
     const result: { [key: string]: any } = {};
 
     Object.keys(flatObject).forEach((key) => {
