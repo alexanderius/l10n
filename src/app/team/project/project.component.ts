@@ -7,6 +7,9 @@ import { LocalizationKey } from '../../_models/localization-key.model';
 import { UtilsService } from '../../_serivices/utils.service';
 import { saveAs } from 'file-saver';
 
+import { getData } from '../../../api/getData';
+import { saveData } from '../../../api/saveData';
+
 export interface Locale {
   code: string;
   name?: string;
@@ -189,8 +192,8 @@ export class ProjectComponent {
     }
   }
 
-  downloadDocs(locale: any): void {
-    const localeTranslations = this.translations[locale];
+  async downloadDocs(locale: any): Promise<void> {
+    const localeTranslations = this.translations[locale.code];
     const flatTranslations: { [key: string]: string | number | null } = {};
 
     Object.keys(localeTranslations).forEach((key) => {
@@ -203,7 +206,14 @@ export class ProjectComponent {
       type: 'application/json;charset=utf-8',
     });
 
-    saveAs(blob, `${locale}-update.json`);
+    saveAs(blob, `${locale.code}-update.json`);
+
+
+  // save in DB across server
+    saveData(nestedTranslations)
+
+    const serverData = await getData();
+    console.log('Данные, полученные с сервера:', serverData);
   }
 
   // Transforming a flatobject into a nested
