@@ -1,4 +1,4 @@
-export async function getData(): Promise<any> {
+export async function getDataFromDB(): Promise<any> {
   try {
     const response = await fetch('http://localhost:3000/');
 
@@ -9,7 +9,7 @@ export async function getData(): Promise<any> {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Ошибка при получении данных с сервера:', error);
+    console.error('Error when receiving data from the server:', error);
     throw error;
   }
 }

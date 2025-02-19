@@ -7,8 +7,9 @@ import { LocalizationKey } from '../../_models/localization-key.model';
 import { UtilsService } from '../../_serivices/utils.service';
 import { saveAs } from 'file-saver';
 
-import { getData } from '../../../api/getData';
-import { saveData } from '../../../api/saveData';
+import { getDataFromDB } from '../../../api/getDataFromDB';
+import { saveDataInDB } from '../../../api/saveDataInDB';
+import { updateTranslation } from '../../../api/updateTranslation';
 
 export interface Locale {
   code: string;
@@ -186,9 +187,16 @@ export class ProjectComponent {
 
   exitEditMode(locale: string, keyId: string): void {
     const currentEditKey = this.translations[locale][keyId];
-
     if (currentEditKey) {
       currentEditKey.e = false;
+
+      updateTranslation(locale, keyId, currentEditKey.v)
+        .then((data) => {
+          console.log('Translation updated successfully', data);
+        })
+        .catch((error) => {
+          console.error('Error updating translation:', error);
+        });
     }
   }
 
@@ -208,12 +216,11 @@ export class ProjectComponent {
 
     saveAs(blob, `${locale.code}-update.json`);
 
+    // save in DB across server
+    saveDataInDB(locale.code, flatTranslations);
 
-  // save in DB across server
-    saveData(nestedTranslations)
-
-    const serverData = await getData();
-    console.log('Данные, полученные с сервера:', serverData);
+    const serverData = await getDataFromDB();
+    console.log('Data received from the server:', serverData);
   }
 
   // Transforming a flatobject into a nested
