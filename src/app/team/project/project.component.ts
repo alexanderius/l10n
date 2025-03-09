@@ -1,15 +1,13 @@
 import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { Component, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { PageMetaService } from '../../_serivices/page-meta.service';
+import { PageMetaService } from '../../_services/page-meta.service';
 import { DropZoneDirective } from '../../_directives/drop-zone.directive';
 import { LocalizationKey } from '../../_models/localization-key.model';
-import { UtilsService } from '../../_serivices/utils.service';
+import { UtilsService } from '../../_services/utils.service';
 import { saveAs } from 'file-saver';
 
-import { getDataFromDB } from '../../../api/getDataFromDB';
-import { saveDataInDB } from '../../../api/saveDataInDB';
-import { updateTranslation } from '../../../api/updateTranslation';
+import { BaseService } from '../../_services/base.service';
 
 export interface Locale {
   code: string;
@@ -40,7 +38,8 @@ export class ProjectComponent {
 
   constructor(
     private pageMetaService: PageMetaService,
-    private utilsService: UtilsService
+    private utilsService: UtilsService,
+    private baseService: BaseService
   ) {
     this.pageMetaService.pageTitle = 'Project Details';
   }
@@ -190,17 +189,18 @@ export class ProjectComponent {
     if (currentEditKey) {
       currentEditKey.e = false;
 
-      updateTranslation(locale, keyId, currentEditKey.v)
-        .then((data) => {
-          console.log('Translation updated successfully', data);
-        })
-        .catch((error) => {
-          console.error('Error updating translation:', error);
+      this.baseService
+        .updateTranslation(locale, keyId, currentEditKey.v)
+        .subscribe((data) => {
+          console.log(
+            `Translation updated: ${locale}.${keyId} to '${currentEditKey.v}'`,
+            data
+          );
         });
     }
   }
 
-  async downloadDocs(locale: any): Promise<void> {
+  downloadDocs(locale: any): void {
     const localeTranslations = this.translations[locale.code];
     const flatTranslations: { [key: string]: string | number | null } = {};
 
@@ -217,10 +217,13 @@ export class ProjectComponent {
     saveAs(blob, `${locale.code}-update.json`);
 
     // save in DB across server
-    saveDataInDB(locale.code, flatTranslations);
+    this.baseService
+      .saveData(locale.code, flatTranslations)
+      .subscribe((data) => console.log('Data saved successfully:', data));
 
-    const serverData = await getDataFromDB();
-    console.log('Data received from the server:', serverData);
+    // this.baseService
+    //   .getData()
+    //   .subscribe((data) => console.log('Data received from the server:', data));
   }
 
   // Transforming a flatobject into a nested
