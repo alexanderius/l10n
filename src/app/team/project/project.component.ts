@@ -219,7 +219,7 @@ export class ProjectComponent {
     // save in DB across server
     this.baseService
       .saveData(locale.code, flatTranslations)
-      .subscribe((data) => console.log('Data saved successfully:', data));
+      .subscribe((res) => console.log('Data saved successfully:', res));
 
     // this.baseService
     //   .getData()
