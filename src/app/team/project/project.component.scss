@@ -129,6 +129,7 @@ $row-height-default: $header-height;
 
   tbody {
     th {
+      padding: 0.8rem 20px;
       position: sticky;
       left: 0;
       background: white;

@@ -1,13 +1,15 @@
 import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { Component, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { PageMetaService } from '../../_services/page-meta.service';
+import { ActivatedRoute } from '@angular/router';
 import { DropZoneDirective } from '../../_directives/drop-zone.directive';
 import { LocalizationKey } from '../../_models/localization-key.model';
-import { UtilsService } from '../../_services/utils.service';
 import { saveAs } from 'file-saver';
 
 import { BaseService } from '../../_services/base.service';
+import { PageMetaService } from '../../_services/page-meta.service';
+import { ProjectService, Project } from '../../_services/project.service';
+import { UtilsService } from '../../_services/utils.service';
 
 export interface Locale {
   code: string;
@@ -22,6 +24,9 @@ export interface Locale {
   standalone: true,
 })
 export class ProjectComponent {
+  project!: Project;
+  projectId!: string;
+
   locales: Locale[] = [];
   keys: LocalizationKey[] = [];
   translations: any = {};
@@ -39,9 +44,21 @@ export class ProjectComponent {
   constructor(
     private pageMetaService: PageMetaService,
     private utilsService: UtilsService,
-    private baseService: BaseService
+    private baseService: BaseService,
+    private route: ActivatedRoute,
+    private projectService: ProjectService
   ) {
     this.pageMetaService.pageTitle = 'Project Details';
+  }
+
+  ngOnInit(): void {
+    const params = this.route.snapshot.params;
+    this.projectId = params['id'];
+    this.project = this.projectService.getProjectById(this.projectId)!;
+
+    this.locales = this.project.locales || [];
+    this.keys = this.project.keys || [];
+    this.translations = this.project.translations || {};
   }
 
   filesDropped($event: any): any {

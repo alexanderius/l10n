@@ -1,12 +1,28 @@
 <main>
   <ul class="projects">
+    @for (project of (projects$ | async); track project.id) {
+    <li>
+      <a
+        class="tile"
+        [routerLink]="['/teams', teamName, 'projects', project.id]"
+      >
+        <span class="name">Project Name: {{ project.name }}</span>
+        <span class="date">Сreation Date: {{ project.name }}</span>
+
+        <button (click)="deleteProject($event, project.id)">
+          <span class="material-icons">delete</span>
+        </button>
+      </a>
+    </li>
+    } @if (teamName) {
     <li>
       <a
         class="tile new"
-        [routerLink]="['/teams', teamName, 'projects', 'new']"
+        [routerLink]="['/teams', teamName, 'projects', 'create']"
       >
         <span class="material-icons">add</span>
       </a>
     </li>
+    }
   </ul>
 </main>

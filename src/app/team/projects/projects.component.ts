@@ -1,34 +1,45 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterLink, ActivatedRoute } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { Observable } from 'rxjs';
+
 import { PageMetaService } from '../../_services/page-meta.service';
+import { ProjectService, Project } from '../../_services/project.service';
+import { UserContextService } from '../../_services/user-context.service';
 
 @Component({
   selector: 'app-projects',
-  imports: [RouterLink],
+  imports: [RouterLink, CommonModule],
   templateUrl: './projects.component.html',
-  styleUrls: ['./projects.component.scss'],
+  styleUrl: './projects.component.scss',
   standalone: true,
 })
 export class ProjectsComponent implements OnInit {
-  teamName!: string;
+  projects$: Observable<Project[]>;
+  teamName?: string;
 
   constructor(
     private pageMetaService: PageMetaService,
-    private activatedRoute: ActivatedRoute
+    private userContextService: UserContextService,
+    private projectService: ProjectService
   ) {
     this.pageMetaService.pageTitle = 'Projects';
+    this.projects$ = this.projectService.projects$;
   }
 
   ngOnInit(): void {
-    this.activatedRoute.paramMap.subscribe((params) => {
-      const teamName = params.get('teamName');
-      if (teamName) {
-        this.teamName = teamName;
-        console.log('Team Name:', this.teamName);
-      } else {
-        console.warn('Team Name is not available in the URL.');
-        this.teamName = 'default-team';
+    this.userContextService.userContext$.subscribe((context) => {
+      if (context) {
+        this.teamName = context.teamName;
       }
     });
+  }
+
+  deleteProject(event: Event, projectId: string): void {
+    event.preventDefault();
+    event.stopPropagation();
+    if (confirm('Are you sure you want to delete this project?')) {
+      this.projectService.deleteProject(projectId);
+    }
   }
 }

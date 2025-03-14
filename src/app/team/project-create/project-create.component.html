@@ -1,0 +1,20 @@
+<div class="create-project">
+  <h2>Create New Project</h2>
+  <form #projectForm="ngForm" (ngSubmit)="onCreate()">
+    <div class="input-wrap">
+      <label for="projectName">Project Name:</label>
+      <input
+        type="text"
+        id="projectName"
+        name="projectName"
+        placeholder="Enter project name..."
+        [(ngModel)]="projectName"
+        required
+      />
+    </div>
+    <div class="btn-wrap">
+      <button type="submit" [disabled]="projectForm.invalid">Create</button>
+      <button type="button" (click)="onCancel()">Cancel</button>
+    </div>
+  </form>
+</div>

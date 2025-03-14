@@ -34,7 +34,6 @@ export class AppComponent implements OnInit {
             this.userContextService.getUserAndTeam().subscribe({
               next: (response) => {
                 this.router.navigate([`/teams/${response.teamName}/projects`]);
-                console.log('User Email:', response.userEmail);
               },
             });
           });
