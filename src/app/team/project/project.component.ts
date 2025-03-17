@@ -34,6 +34,8 @@ export class ProjectComponent {
   currenLocale: string | null = null;
   currentKeyId: string | null = null;
 
+  currentFileName!: string;
+
   scrollOffestX = 0;
 
   @HostListener('window:scroll', ['$event'])
@@ -54,11 +56,13 @@ export class ProjectComponent {
   ngOnInit(): void {
     const params = this.route.snapshot.params;
     this.projectId = params['id'];
-    this.project = this.projectService.getProjectById(this.projectId)!;
 
-    this.locales = this.project.locales || [];
-    this.keys = this.project.keys || [];
-    this.translations = this.project.translations || {};
+    this.projectService.getProjectById(this.projectId).subscribe((project) => {
+      this.project = project;
+      this.locales = this.project?.locales || [];
+      this.keys = this.project?.keys || [];
+      this.translations = this.project?.translations || {};
+    });
   }
 
   filesDropped($event: any): any {
@@ -87,12 +91,12 @@ export class ProjectComponent {
   }
 
   /* JSON processing  */
-
   importFromJson(file: File): void {
     const reader = new FileReader();
     reader.onload = (e) => {
       // assuming file name is the name of locale
       const locale = file.name.substring(0, file.name.indexOf('.'));
+      this.currentFileName = file.name;
 
       if (this.locales.findIndex((l) => l.code === locale) < 0) {
         const localeObject: Locale = {
@@ -206,14 +210,13 @@ export class ProjectComponent {
     if (currentEditKey) {
       currentEditKey.e = false;
 
-      this.baseService
-        .updateTranslation(locale, keyId, currentEditKey.v)
-        .subscribe((data) => {
-          console.log(
-            `Translation updated: ${locale}.${keyId} to '${currentEditKey.v}'`,
-            data
-          );
-        });
+      this.projectService.updateTranslation(
+        this.project.id,
+        this.currentFileName,
+        locale,
+        keyId,
+        currentEditKey.v
+      );
     }
   }
 
@@ -232,15 +235,9 @@ export class ProjectComponent {
     });
 
     saveAs(blob, `${locale.code}-update.json`);
-
-    // save in DB across server
-    this.baseService
-      .saveData(locale.code, flatTranslations)
+    this.projectService
+      .saveTranslations(this.project.id, this.currentFileName, flatTranslations)
       .subscribe((res) => console.log('Data saved successfully:', res));
-
-    // this.baseService
-    //   .getData()
-    //   .subscribe((data) => console.log('Data received from the server:', data));
   }
 
   // Transforming a flatobject into a nested

@@ -23,10 +23,6 @@ export class BaseService {
     return throwError(() => new Error(errorMessage));
   }
 
-  getData(): Observable<any> {
-    return this.http.get<any>(this.baseUrl).pipe(catchError(this.handleError));
-  }
-
   saveData(fileName: string, translations: any): Observable<any> {
     const requestBody = {
       fileName: fileName,

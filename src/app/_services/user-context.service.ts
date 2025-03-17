@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { __values } from 'tslib';
 
 interface UserContext {
   userEmail: string;
@@ -19,7 +18,7 @@ export class UserContextService {
 
   getUserAndTeam(): Observable<UserContext> {
     return this.http
-      .get<UserContext>('http://localhost:3000/users/create-team')
+      .get<UserContext>('http://localhost:3000/users/projects')
       .pipe(
         tap((response) => {
           this.userContextSubject.next(response);

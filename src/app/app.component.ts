@@ -3,7 +3,9 @@ import { RouterOutlet, Router } from '@angular/router';
 import { AuthService } from '@auth0/auth0-angular';
 import { CommonModule } from '@angular/common';
 import { take } from 'rxjs/operators';
+
 import { UserContextService } from './_services/user-context.service';
+import { ProjectService } from './_services/project.service';
 
 @Component({
   selector: 'app-root',
@@ -16,9 +18,10 @@ export class AppComponent implements OnInit {
   title = 'l10n';
 
   constructor(
-    public authService: AuthService,
     private router: Router,
-    private userContextService: UserContextService
+    public authService: AuthService,
+    public userContextService: UserContextService,
+    public projectService: ProjectService
   ) {}
 
   ngOnInit(): void {
@@ -31,9 +34,14 @@ export class AppComponent implements OnInit {
           this.authService.getAccessTokenSilently().subscribe((accessToken) => {
             sessionStorage.setItem('accessToken', accessToken);
 
+            // Получаем данные пользователя и проекты
             this.userContextService.getUserAndTeam().subscribe({
               next: (response) => {
-                this.router.navigate([`/teams/${response.teamName}/projects`]);
+                const teamName = response.teamName;
+
+                // Загружаем проекты пользователя через ProjectService
+                this.projectService.loadProjectsFromDb();
+                this.router.navigate([`/teams/${teamName}/projects`]);
               },
             });
           });
