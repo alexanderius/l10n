@@ -6,10 +6,10 @@ import { DropZoneDirective } from '../../_directives/drop-zone.directive';
 import { LocalizationKey } from '../../_models/localization-key.model';
 import { saveAs } from 'file-saver';
 
-import { BaseService } from '../../_services/base.service';
 import { PageMetaService } from '../../_services/page-meta.service';
 import { ProjectService, Project } from '../../_services/project.service';
 import { UtilsService } from '../../_services/utils.service';
+import { take } from 'rxjs';
 
 export interface Locale {
   code: string;
@@ -46,7 +46,6 @@ export class ProjectComponent {
   constructor(
     private pageMetaService: PageMetaService,
     private utilsService: UtilsService,
-    private baseService: BaseService,
     private route: ActivatedRoute,
     private projectService: ProjectService
   ) {
@@ -210,13 +209,31 @@ export class ProjectComponent {
     if (currentEditKey) {
       currentEditKey.e = false;
 
-      this.projectService.updateTranslation(
-        this.project.id,
-        this.currentFileName,
-        locale,
-        keyId,
-        currentEditKey.v
-      );
+      console.log('Updating translation:', {
+        projectId: this.project.id,
+        fileName: this.currentFileName,
+        locale: locale,
+        keyId: keyId,
+        value: currentEditKey.v,
+      });
+
+      this.projectService
+        .updateTranslation(
+          this.project.id,
+          this.currentFileName,
+          locale,
+          keyId,
+          currentEditKey.v
+        )
+        .pipe(take(1)) // Add this line to automatically unsubscribe after the first value
+        .subscribe({
+          next: (response) => {
+            console.log('Update successful', response);
+          },
+          error: (error) => {
+            console.error('Update failed', error);
+          },
+        });
     }
   }
 
@@ -235,6 +252,7 @@ export class ProjectComponent {
     });
 
     saveAs(blob, `${locale.code}-update.json`);
+
     this.projectService
       .saveTranslations(this.project.id, this.currentFileName, flatTranslations)
       .subscribe((res) => console.log('Data saved successfully:', res));
