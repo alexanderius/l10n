@@ -36,8 +36,20 @@ export class ProjectCreateComponent implements OnInit {
 
   onCreate() {
     if (this.teamName) {
-      this.projectService.createProject(this.projectName);
-      this.router.navigate(['/teams', this.teamName, 'projects']);
+      this.projectService.createProject(this.projectName).subscribe({
+        next: (response) => {
+          const projectId = response.projectId;
+          this.router.navigate([
+            '/teams',
+            this.teamName,
+            'projects',
+            projectId,
+          ]);
+        },
+        error: (error) => {
+          console.error('Error creating project:', error);
+        },
+      });
     }
   }
 

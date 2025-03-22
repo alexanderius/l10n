@@ -34,7 +34,7 @@ export class ProjectComponent {
   currenLocale: string | null = null;
   currentKeyId: string | null = null;
 
-  currentFileName!: string;
+  fileNames: string[] = [];
 
   scrollOffestX = 0;
 
@@ -55,13 +55,89 @@ export class ProjectComponent {
   ngOnInit(): void {
     const params = this.route.snapshot.params;
     this.projectId = params['id'];
+    this.fileNames = [];
 
-    this.projectService.getProjectById(this.projectId).subscribe((project) => {
-      this.project = project;
-      this.locales = this.project?.locales || [];
-      this.keys = this.project?.keys || [];
-      this.translations = this.project?.translations || {};
+    this.projectService
+      .getProjectLocalesById(this.projectId)
+      .subscribe((data) => {
+        this.project = data.project;
+        this.fileNames = data.fileNames;
+        this.locales = data.locales.map((locale) => ({
+          code: locale,
+          name: locale,
+          isRtl: false,
+        }));
+
+        console.log('Locales loaded:', this.locales);
+      });
+
+    this.projectService
+      .getProjectKeyPathById(this.projectId)
+      .subscribe((data) => {
+        this.project = data.project;
+        this.fileNames = data.fileNames;
+        this.keys = this.flatObjToNested(data.keys);
+
+        console.log('Keys loaded:', this.keys);
+      });
+
+    this.projectService
+      .getProjectTranslationById(this.projectId)
+      .subscribe((data) => {
+        this.project = data.project;
+        this.fileNames = data.fileNames;
+
+        data.translations.forEach((translation) => {
+          const locale = translation.fileName.split('.')[0];
+
+          if (!this.translations[locale]) {
+            this.translations[locale] = {};
+          }
+
+          this.translations[locale][translation.keyPath] = {
+            v: translation.value,
+            e: false,
+          };
+        });
+
+        console.log('Translations loaded:', this.translations);
+      });
+  }
+
+  flatObjToNested(keys: { id: string }[]): LocalizationKey[] {
+    const result: LocalizationKey[] = [];
+
+    const map: { [key: string]: LocalizationKey } = {};
+
+    keys.forEach((keyObj) => {
+      const path = keyObj.id.split('.');
+      let currentMap = map;
+      let currentResult = result;
+
+      for (let i = 0; i < path.length; i++) {
+        const segment = path[i];
+
+        if (!currentMap[segment]) {
+          const newKey: LocalizationKey = { id: segment };
+          currentMap[segment] = newKey;
+
+          if (i === path.length - 1) {
+            currentResult.push(newKey);
+          } else {
+            newKey.children = [];
+            currentResult.push(newKey);
+          }
+        }
+
+        if (currentMap[segment].children) {
+          currentResult = currentMap[segment].children!;
+        }
+
+        currentMap = currentMap[segment].children ? {} : currentMap;
+      }
     });
+
+    return result;
   }
 
   filesDropped($event: any): any {
@@ -84,6 +160,8 @@ export class ProjectComponent {
       }
     }
 
+    console.log('ТранслейшенЛокаль:', this.translations);
+
     setTimeout(() => {
       console.log(this.translations);
     }, 3000);
@@ -93,9 +171,15 @@ export class ProjectComponent {
   importFromJson(file: File): void {
     const reader = new FileReader();
     reader.onload = (e) => {
-      // assuming file name is the name of locale
       const locale = file.name.substring(0, file.name.indexOf('.'));
-      this.currentFileName = file.name;
+
+      if (!this.fileNames) {
+        this.fileNames = [];
+      }
+
+      if (!this.fileNames.includes(locale)) {
+        this.fileNames.push(locale);
+      }
 
       if (this.locales.findIndex((l) => l.code === locale) < 0) {
         const localeObject: Locale = {
@@ -134,8 +218,6 @@ export class ProjectComponent {
 
           this.translations[locale][flatKeys[j]].v =
             keyPathSegmentIndex == keyPathSegments.length ? current : null;
-
-          // console.log(flatKeys[j], current);
         }
       }
 
@@ -209,53 +291,56 @@ export class ProjectComponent {
     if (currentEditKey) {
       currentEditKey.e = false;
 
-      console.log('Updating translation:', {
-        projectId: this.project.id,
-        fileName: this.currentFileName,
-        locale: locale,
-        keyId: keyId,
-        value: currentEditKey.v,
+      this.fileNames.forEach((fileName) => {
+        this.projectService
+          .updateTranslation(
+            this.projectId,
+            fileName,
+            locale,
+            keyId,
+            currentEditKey.v
+          )
+          .pipe(take(1))
+          .subscribe({
+            next: (response) => {
+              console.log(`Update successful for ${fileName}`, response);
+            },
+            error: (error) => {
+              console.error(`Update failed for ${fileName}`, error);
+            },
+          });
       });
-
-      this.projectService
-        .updateTranslation(
-          this.project.id,
-          this.currentFileName,
-          locale,
-          keyId,
-          currentEditKey.v
-        )
-        .pipe(take(1)) // Add this line to automatically unsubscribe after the first value
-        .subscribe({
-          next: (response) => {
-            console.log('Update successful', response);
-          },
-          error: (error) => {
-            console.error('Update failed', error);
-          },
-        });
     }
   }
 
   downloadDocs(locale: any): void {
-    const localeTranslations = this.translations[locale.code];
-    const flatTranslations: { [key: string]: string | number | null } = {};
+    if (this.fileNames.length === 0) {
+      console.log('No files uploaded. Please upload a file first.');
+      return;
+    }
 
-    Object.keys(localeTranslations).forEach((key) => {
-      flatTranslations[key] = localeTranslations[key].v;
+    this.fileNames.forEach((fileName) => {
+      const localeTranslations = this.translations[fileName];
+      const flatTranslations: { [key: string]: string | number | null } = {};
+
+      Object.keys(localeTranslations).forEach((key) => {
+        flatTranslations[key] = localeTranslations[key].v;
+      });
+
+      const nestedTranslations = this.restoreNestedObj(flatTranslations);
+
+      const blob = new Blob([JSON.stringify(nestedTranslations, null, 2)], {
+        type: 'application/json;charset=utf-8',
+      });
+
+      saveAs(blob, `${locale.code}-update.json`);
+
+      this.projectService
+        .saveTranslations(this.projectId, fileName, flatTranslations)
+        .subscribe((res) =>
+          console.log(`Data saved successfully for ${fileName}:`, res)
+        );
     });
-
-    const nestedTranslations = this.restoreNestedObj(flatTranslations);
-
-    const blob = new Blob([JSON.stringify(nestedTranslations, null, 2)], {
-      type: 'application/json;charset=utf-8',
-    });
-
-    saveAs(blob, `${locale.code}-update.json`);
-
-    this.projectService
-      .saveTranslations(this.project.id, this.currentFileName, flatTranslations)
-      .subscribe((res) => console.log('Data saved successfully:', res));
   }
 
   // Transforming a flatobject into a nested

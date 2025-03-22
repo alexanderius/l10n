@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, map, Observable } from 'rxjs';
+import { BehaviorSubject, catchError, map, Observable, of, tap } from 'rxjs';
 
 import { UserContextService } from './user-context.service';
+import { LocalizationKey } from '../_models/localization-key.model';
 
 export interface Project {
   id: string;
@@ -46,14 +47,17 @@ export class ProjectService {
     });
   }
 
-  createProject(projectName: string): void {
+  createProject(projectName: string): Observable<{ projectId: number }> {
     const teamName = this.userContextService.teamName;
 
     if (teamName) {
-      this.http
-        .post<any>('http://localhost:3000/projects', { projectName })
-        .subscribe({
-          next: (response) => {
+      return this.http
+        .post<{ projectId: number; projectName: string }>(
+          'http://localhost:3000/projects',
+          { projectName }
+        )
+        .pipe(
+          tap((response) => {
             const newProject: Project = {
               id: response.projectId.toString(),
               name: projectName,
@@ -67,11 +71,10 @@ export class ProjectService {
             const currentProjects = this.projectsSubject.value;
             const updatedProjects = [...currentProjects, newProject];
             this.projectsSubject.next(updatedProjects);
-          },
-          error: (error) => {
-            console.error('Error creating project:', error);
-          },
-        });
+          })
+        );
+    } else {
+      throw new Error('Team name is not defined');
     }
   }
 
@@ -92,19 +95,53 @@ export class ProjectService {
       });
   }
 
-  getProjectById(projectId: string): Observable<Project> {
+  getProjectLocalesById(
+    projectId: string
+  ): Observable<{ project: any; locales: string[]; fileNames: string[] }> {
     return this.http
-      .get<any>(`http://localhost:3000/projects/${projectId}`)
+      .get<{ project: any; locales: string[]; fileNames: string[] }>(
+        `http://localhost:3000/projects/${projectId}/locales`
+      )
       .pipe(
-        map((response) => ({
-          id: response.project.ProjectId.toString(),
-          name: response.project.ProjectName,
-          team: this.userContextService.teamName || 'default',
-          locales: [],
-          keys: [],
-          translations: response.translations || {},
-          files: response.files || [],
-        }))
+        map((response) => response),
+        catchError((error) => {
+          console.error('Error fetching locales:', error);
+          return of({ project: {}, locales: [], fileNames: [] });
+        })
+      );
+  }
+
+  getProjectKeyPathById(projectId: string): Observable<{
+    project: any;
+    keys: LocalizationKey[];
+    fileNames: string[];
+  }> {
+    return this.http
+      .get<{ project: any; keys: LocalizationKey[]; fileNames: string[] }>(
+        `http://localhost:3000/projects/${projectId}/keys`
+      )
+      .pipe(
+        map((response) => response),
+        catchError((error) => {
+          console.error('Error fetching keys:', error);
+          return of({ project: {}, keys: [], fileNames: [] });
+        })
+      );
+  }
+
+  getProjectTranslationById(
+    projectId: string
+  ): Observable<{ project: any; translations: any[]; fileNames: string[] }> {
+    return this.http
+      .get<{ project: any; translations: any[]; fileNames: string[] }>(
+        `http://localhost:3000/projects/${projectId}/translations`
+      )
+      .pipe(
+        map((response) => response),
+        catchError((error) => {
+          console.error('Error fetching translations:', error);
+          return of({ project: {}, translations: [], fileNames: [] });
+        })
       );
   }
 
@@ -113,6 +150,9 @@ export class ProjectService {
     fileName: string,
     translations: { [key: string]: string | number | null }
   ): Observable<any> {
+    console.log(` Айди передаваемый в эндпоинт на сохранение ${projectId}`);
+    console.log(` ФайлНейм передаваемый в эндпоинт на сохранение ${fileName}`);
+
     return this.http.post<any>(`http://localhost:3000/`, {
       projectId: projectId,
       fileName: fileName,
@@ -125,14 +165,14 @@ export class ProjectService {
     fileName: string,
     locale: string,
     keyId: string,
-    value: string
+    value: string | number | null
   ): Observable<any> {
     return this.http.post<any>(`http://localhost:3000/translation/update`, {
-      projectId: projectId,
-      fileName: fileName,
-      locale: locale,
-      keyId: keyId,
-      value: value,
+      projectId,
+      fileName,
+      locale,
+      keyId,
+      value,
     });
   }
 }
