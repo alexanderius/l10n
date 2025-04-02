@@ -1,0 +1,83 @@
+@use "../../styles/settings";
+@use "../../styles/buttons";
+
+main {
+  margin-top: settings.$header-height;
+  padding: 20px;
+
+  @media (max-width: 768px) {
+    padding: 10px;
+  }
+
+  .teams {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+
+    li {
+      max-width: 360px;
+      width: 100%;
+      border: solid 1px settings.$border-color-default;
+      border-radius: settings.$border-radius-default;
+      background-color: settings.$background-light-gray;
+      transition: box-shadow 0.3s ease-in-out;
+      cursor: pointer;
+
+      &:hover {
+        box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+        transition: box-shadow 0.3s ease-in-out;
+      }
+
+      .tile {
+        position: relative;
+        display: inline-flex;
+        flex-direction: column;
+        padding: 15px;
+        width: 100%;
+
+        .team-name {
+          font-size: 1.25rem;
+          font-weight: 700;
+          color: settings.$title-color;
+          text-transform: uppercase;
+        }
+
+        .team-id,
+        .user-id {
+          font-size: 0.75rem;
+          color: settings.$label-color;
+        }
+
+        .user-card {
+          margin: 15px 0px 0px 0px;
+
+          p {
+            font-size: 1rem;
+            font-weight: 500;
+            color: settings.$title-color;
+
+            &:last-child {
+              margin: 10px 0px 0px 0px;
+            }
+
+            span {
+              font-size: 1.15rem;
+              color: settings.$label-color;
+            }
+          }
+        }
+      }
+    }
+
+    .new {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      .material-icons {
+        font-size: 4rem;
+        color: settings.$label-color;
+      }
+    }
+  }
+}

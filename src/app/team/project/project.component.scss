@@ -1,6 +1,4 @@
-@import "../../../styles/settings";
-
-$row-height-default: $header-height;
+@use "../../../styles/settings";
 
 .drop-files-mesage {
   display: none;
@@ -33,7 +31,7 @@ $row-height-default: $header-height;
   width: 100vw;
   max-width: 100vw;
   overflow: auto;
-  max-height: calc(100vh - $header-height);
+  max-height: calc(100vh - settings.$header-height);
   overflow: auto;
   position: relative;
 }
@@ -48,8 +46,8 @@ $row-height-default: $header-height;
 
   &-section {
     position: sticky;
-    top: $row-height-default;
-    background-color: $primary-color;
+    top: settings.$header-height;
+    background-color: settings.$primary-color;
     color: #fff;
     z-index: 3;
 
@@ -65,12 +63,12 @@ $row-height-default: $header-height;
 
   td,
   th {
-    border-right: 1px solid $border-color-default;
-    border-bottom: 1px solid $border-color-default;
+    border-right: 1px solid settings.$border-color-default;
+    border-bottom: 1px solid settings.$border-color-default;
     border-top: 1px solid transparent;
     border-left: 1px solid transparent;
     padding: 0;
-    height: $row-height-default;
+    height: settings.$header-height;
     max-width: 400px;
     white-space: normal;
     text-align: justify;
@@ -85,7 +83,7 @@ $row-height-default: $header-height;
 
       &:active,
       &:focus {
-        border: solid 1px $primary-color;
+        border: solid 1px settings.$primary-color;
       }
     }
 
@@ -96,7 +94,7 @@ $row-height-default: $header-height;
 
   td[colspan],
   td:hover {
-    border: 1px solid $primary-color;
+    border: 1px solid settings.$primary-color;
   }
 
   thead {

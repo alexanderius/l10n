@@ -28,9 +28,9 @@ export class ProjectsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.userContextService.userContext$.subscribe((context) => {
+    this.userContextService.userInfo$.subscribe((context) => {
       if (context) {
-        this.teamName = context.teamName;
+        console.log(context)
       }
     });
   }

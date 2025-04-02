@@ -9,12 +9,13 @@
         <span class="name">Project Name: {{ project.name }}</span>
         <span class="date">Сreation Date: {{ project.name }}</span>
 
-        <button (click)="deleteProject($event, project.id)">
+        <button class="btn-delete" (click)="deleteProject($event, project.id)">
           <span class="material-icons">delete</span>
         </button>
       </a>
     </li>
     } @if (teamName) {
+
     <li>
       <a
         class="tile new"

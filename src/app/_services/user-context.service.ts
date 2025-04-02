@@ -1,32 +1,44 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
-interface UserContext {
-  userEmail: string;
+export interface Team {
+  teamId: string;
   teamName: string;
+  teamRoles?: number;
+  createdAt?: string;
+  modifiedAt?: string;
+}
+
+export interface UserContext {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  userEmail: string;
+  teams: Team[];
+  phone?: string;
+  passwordHash?: string;
+  passwordSalt?: string;
+  isLocked?: boolean;
+  createdAt?: string;
+  modifiedAt?: string;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserContextService {
-  private userContextSubject = new BehaviorSubject<UserContext | null>(null);
-  userContext$ = this.userContextSubject.asObservable();
+  private userInfoSubject = new BehaviorSubject<UserContext | null>(null);
+  public userInfo$: Observable<UserContext | null> =
+    this.userInfoSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor() {}
 
-  getUserAndTeam(): Observable<UserContext> {
-    return this.http
-      .get<UserContext>('http://localhost:3000/users/projects')
-      .pipe(
-        tap((response) => {
-          this.userContextSubject.next(response);
-        })
-      );
+  getCurrentContext(): UserContext | null {
+    return this.userInfoSubject.value;
   }
 
-  get teamName(): string | undefined {
-    return this.userContextSubject.value?.teamName;
+  updateUserInfo(userInfo: UserContext) {
+    console.log('Updating UserContextService with:', userInfo);
+    this.userInfoSubject.next(userInfo);
   }
 }

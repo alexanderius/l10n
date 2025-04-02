@@ -27,11 +27,11 @@ export class ProjectCreateComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.userContextService.userContext$.subscribe((context) => {
-      if (context) {
-        this.teamName = context.teamName;
-      }
-    });
+    // this.userContextService.userContext$.subscribe((context) => {
+    //   if (context) {
+    //     this.teamName = context.teamName;
+    //   }
+    // });
   }
 
   onCreate() {

@@ -33,7 +33,7 @@ export class ProjectService {
         const projects: Project[] = response.projects.map((p: any) => ({
           id: p.ProjectId.toString(),
           name: p.ProjectName,
-          team: this.userContextService.teamName || 'default',
+          team: 'default',
           files: [],
           locales: [],
           keys: [],
@@ -48,9 +48,9 @@ export class ProjectService {
   }
 
   createProject(projectName: string): Observable<{ projectId: number }> {
-    const teamName = this.userContextService.teamName;
+    // const teamName = this.userContextService.teamName;
 
-    if (teamName) {
+    if (true) {
       return this.http
         .post<{ projectId: number; projectName: string }>(
           'http://localhost:3000/projects',
@@ -61,7 +61,7 @@ export class ProjectService {
             const newProject: Project = {
               id: response.projectId.toString(),
               name: projectName,
-              team: teamName,
+              team: 'default',
               files: [],
               locales: [],
               keys: [],

@@ -21,8 +21,7 @@ export const appConfig: ApplicationConfig = {
       domain: 'localization-l10n.us.auth0.com',
       clientId: 'VQ7Dzo4nhRbbfHgYECxeHFnv9wjtm9kV',
       authorizationParams: {
-        // redirect_uri: window.location.origin,
-        redirect_uri: 'http://localhost:4200/teams/default/projects',
+        redirect_uri: 'http://localhost:4200/teams',
         audience: 'https://api.localization-l10n.com',
       },
     }),

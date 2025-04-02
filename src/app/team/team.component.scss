@@ -1,30 +1,30 @@
-@import "../../styles/settings";
+@use "../../styles/settings";
 
 :host {
   height: 100vh;
 }
 
 header {
-  height: $header-height;
+  height: settings.$header-height;
   position: absolute;
   top: 0;
   left: 0;
   width: 100vw;
   display: flex;
   align-items: center;
-  max-height: $header-height;
-  height: $header-height;
+  max-height: settings.$header-height;
+  height: settings.$header-height;
   margin: 0;
   padding: 0 20px;
   background-color: #fff;
-  border-bottom: solid 1px $border-color-default;
+  border-bottom: solid 1px settings.$border-color-default;
   font-size: 1.5em;
 }
 
 main {
-  margin-top: $header-height;
-  height: calc(100vh - $header-height);
-  background-color: $background-light-grey;
+  margin-top: settings.$header-height;
+  height: calc(100vh - settings.$header-height);
+  background-color: settings.$background-light-gray;
 }
 
 .team-user {
@@ -38,5 +38,5 @@ main {
   padding: 5px 20px;
   top: 0;
   right: 0;
-  height: $header-height;
+  height: settings.$header-height;
 }

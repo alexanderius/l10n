@@ -1,0 +1,29 @@
+<div class="user-profile-container">
+  <h2>User Profile</h2>
+  <form #myForm="ngForm" (ngSubmit)="saveUserProfile()">
+    <div class="form-group">
+      <label for="firstName">FirstName:</label>
+      <input
+        type="text"
+        id="firstName"
+        name="firstName"
+        placeholder="Entet your Firstname"
+        [(ngModel)]="firstName"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="lastName">LastName:</label>
+      <input
+        type="text"
+        id="lastName"
+        name="lastName"
+        placeholder="Entet your Lastname"
+        [(ngModel)]="lastName"
+        required
+      />
+    </div>
+    <button type="submit" [disabled]="myForm.invalid">Save</button>
+  </form>
+</div>
