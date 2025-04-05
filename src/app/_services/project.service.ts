@@ -8,11 +8,13 @@ import { LocalizationKey } from '../_models/localization-key.model';
 export interface Project {
   id: string;
   name: string;
-  team: string;
+  createdAt?: string;
+  modifiedAt?: string;
   files: any[];
   locales: any[];
   keys: any[];
   translations: any;
+  team: string;
 }
 
 @Injectable({
@@ -27,55 +29,53 @@ export class ProjectService {
     private http: HttpClient
   ) {}
 
-  loadProjectsFromDb(): void {
-    this.http.get<any>('http://localhost:3000/users/projects').subscribe({
-      next: (response) => {
-        const projects: Project[] = response.projects.map((p: any) => ({
-          id: p.ProjectId.toString(),
-          name: p.ProjectName,
-          team: 'default',
-          files: [],
-          locales: [],
-          keys: [],
-          translations: {},
-        }));
-        this.projectsSubject.next(projects);
-      },
-      error: (error) => {
-        console.error('Error fetching user projects:', error);
-      },
-    });
+  getTeamProjects(teamId: string): void {
+    this.http
+      .get<any>(`http://localhost:3000/teams/${teamId}/projects`)
+      .subscribe({
+        next: (response) => {
+          const projects: Project[] = response.projects.map((p: any) => ({
+            id: p.ProjectId.toString(),
+            name: p.ProjectName,
+            team: teamId,
+            files: [],
+            locales: [],
+            keys: [],
+            translations: {},
+            createdAt: p.CreatedAt,
+            modifiedAt: p.ModifiedAt,
+          }));
+          this.projectsSubject.next(projects);
+        },
+        error: (error) => {
+          console.error('Error fetching team projects:', error);
+        },
+      });
   }
 
   createProject(projectName: string): Observable<{ projectId: number }> {
-    // const teamName = this.userContextService.teamName;
+    return this.http
+      .post<{ projectId: number; projectName: string }>(
+        'http://localhost:3000/projects',
+        { projectName }
+      )
+      .pipe(
+        tap((response) => {
+          const newProject: Project = {
+            id: response.projectId.toString(),
+            name: projectName,
+            team: 'default',
+            files: [],
+            locales: [],
+            keys: [],
+            translations: {},
+          };
 
-    if (true) {
-      return this.http
-        .post<{ projectId: number; projectName: string }>(
-          'http://localhost:3000/projects',
-          { projectName }
-        )
-        .pipe(
-          tap((response) => {
-            const newProject: Project = {
-              id: response.projectId.toString(),
-              name: projectName,
-              team: 'default',
-              files: [],
-              locales: [],
-              keys: [],
-              translations: {},
-            };
-
-            const currentProjects = this.projectsSubject.value;
-            const updatedProjects = [...currentProjects, newProject];
-            this.projectsSubject.next(updatedProjects);
-          })
-        );
-    } else {
-      throw new Error('Team name is not defined');
-    }
+          const currentProjects = this.projectsSubject.value;
+          const updatedProjects = [...currentProjects, newProject];
+          this.projectsSubject.next(updatedProjects);
+        })
+      );
   }
 
   deleteProject(projectId: string): void {

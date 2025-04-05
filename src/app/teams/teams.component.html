@@ -3,7 +3,7 @@
     @if (userInfo && userInfo.teams) { @for (team of userInfo.teams; track
     team.teamId) {
     <li>
-      <a class="tile" [routerLink]="['/']">
+      <a class="tile" [routerLink]="['/teams', team.teamId, 'projects']">
         <p class="team-name">{{ team.teamName }}</p>
         <span class="team-id">(ID: {{ team.teamId }})</span>
 
@@ -20,14 +20,14 @@
           </p>
         </div>
 
-        <button class="btn-delete" (click)="deleteTeam($event)">
+        <button class="btn-delete" (click)="deleteTeam(team.teamId, $event)">
           <span class="material-icons">delete</span>
         </button>
       </a>
     </li>
     }}
 
-    <li class="new">
+    <li class="new" (click)="createTeam()">
       <a>
         <span class="material-icons">add</span>
       </a>

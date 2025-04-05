@@ -10,8 +10,7 @@ export const routes: Routes = [
   { path: 'user-profile', component: UserProfileComponent },
   { path: 'teams', component: TeamsComponent },
   {
-    // path: 'teams/:teamId',
-    path: 'teams/:teamName',
+    path: 'teams/:teamId',
     component: TeamComponent,
     children: [
       { path: 'projects', component: ProjectsComponent },

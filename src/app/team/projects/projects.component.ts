@@ -1,11 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
 
 import { PageMetaService } from '../../_services/page-meta.service';
 import { ProjectService, Project } from '../../_services/project.service';
-import { UserContextService } from '../../_services/user-context.service';
 
 @Component({
   selector: 'app-projects',
@@ -16,21 +15,26 @@ import { UserContextService } from '../../_services/user-context.service';
 })
 export class ProjectsComponent implements OnInit {
   projects$: Observable<Project[]>;
-  teamName?: string;
+  teamId!: string;
 
   constructor(
     private pageMetaService: PageMetaService,
-    private userContextService: UserContextService,
-    private projectService: ProjectService
+    private projectService: ProjectService,
+    private route: ActivatedRoute
   ) {
     this.pageMetaService.pageTitle = 'Projects';
     this.projects$ = this.projectService.projects$;
   }
 
   ngOnInit(): void {
-    this.userContextService.userInfo$.subscribe((context) => {
-      if (context) {
-        console.log(context)
+    this.route.parent?.paramMap.subscribe((params) => {
+      const teamId = params.get('teamId');
+
+      if (teamId) {
+        this.teamId = teamId;
+        this.projectService.getTeamProjects(teamId);
+
+        console.log(this.projects$);
       }
     });
   }

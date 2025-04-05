@@ -15,7 +15,7 @@ import { ProjectService } from '../../_services/project.service';
 })
 export class ProjectCreateComponent implements OnInit {
   projectName: string = '';
-  teamName?: string;
+  teamId!: string;
 
   constructor(
     private userContextService: UserContextService,
@@ -27,35 +27,28 @@ export class ProjectCreateComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // this.userContextService.userContext$.subscribe((context) => {
-    //   if (context) {
-    //     this.teamName = context.teamName;
-    //   }
-    // });
+    this.userContextService.userInfo$.subscribe((userInfo) => {
+      if (userInfo && userInfo.teams && userInfo.teams.length > 0) {
+        this.teamId = userInfo.teams[0].teamId;
+
+        console.log(this.teamId);
+      }
+    });
   }
 
   onCreate() {
-    if (this.teamName) {
-      this.projectService.createProject(this.projectName).subscribe({
-        next: (response) => {
-          const projectId = response.projectId;
-          this.router.navigate([
-            '/teams',
-            this.teamName,
-            'projects',
-            projectId,
-          ]);
-        },
-        error: (error) => {
-          console.error('Error creating project:', error);
-        },
-      });
-    }
+    this.projectService.createProject(this.projectName).subscribe({
+      next: (response) => {
+        const projectId = response.projectId;
+        // this.router.navigate(['/teams', this.teamName, 'projects', projectId]);
+      },
+      error: (error) => {
+        console.error('Error creating project:', error);
+      },
+    });
   }
 
   onCancel() {
-    if (this.teamName) {
-      this.router.navigate(['/teams', this.teamName, 'projects']);
-    }
+    // this.router.navigate(['/teams', this.teamName, 'projects']);
   }
 }

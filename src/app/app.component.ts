@@ -45,10 +45,7 @@ export class AppComponent implements OnInit {
         if (response.userExists) {
           this.http.get('http://localhost:3000/user/fulldata').subscribe({
             next: (userData: any) => {
-              const currentContext =
-                this.userContextService.getCurrentContext();
-              const updatedContext = { ...currentContext, ...userData };
-              this.userContextService.updateUserInfo(updatedContext);
+              this.userContextService.updateUserInfo(userData);
               this.router.navigate(['/teams']);
             },
           });
