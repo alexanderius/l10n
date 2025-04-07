@@ -35,7 +35,6 @@ export class ProjectComponent {
   currentKeyId: string | null = null;
 
   fileNames: string[] = [];
-
   scrollOffestX = 0;
 
   @HostListener('window:scroll', ['$event'])
@@ -46,8 +45,8 @@ export class ProjectComponent {
   constructor(
     private pageMetaService: PageMetaService,
     private utilsService: UtilsService,
-    private route: ActivatedRoute,
-    private projectService: ProjectService
+    private projectService: ProjectService,
+    private route: ActivatedRoute
   ) {
     this.pageMetaService.pageTitle = 'Project Details';
   }

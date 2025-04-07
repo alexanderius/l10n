@@ -15,6 +15,7 @@ import { UserContext } from '../_models/user-context.model';
 })
 export class TeamsComponent implements OnInit {
   userInfo: any;
+  pageTitle = '';
 
   constructor(
     public userContextService: UserContextService,

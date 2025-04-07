@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
 
 import { PageMetaService } from '../../_services/page-meta.service';
+import { UserContextService } from '../../_services/user-context.service';
 import { ProjectService, Project } from '../../_services/project.service';
 
 @Component({
@@ -15,26 +16,24 @@ import { ProjectService, Project } from '../../_services/project.service';
 })
 export class ProjectsComponent implements OnInit {
   projects$: Observable<Project[]>;
-  teamId!: string;
+  teamId: string | undefined;
 
   constructor(
     private pageMetaService: PageMetaService,
+    private userContextService: UserContextService,
     private projectService: ProjectService,
     private route: ActivatedRoute
   ) {
-    this.pageMetaService.pageTitle = 'Projects';
     this.projects$ = this.projectService.projects$;
+    this.pageMetaService.pageTitle = 'Projects';
   }
 
   ngOnInit(): void {
-    this.route.parent?.paramMap.subscribe((params) => {
-      const teamId = params.get('teamId');
+    this.userContextService.userInfo$.subscribe((userInfo) => {
+      this.teamId = userInfo?.currentTeamId;
 
-      if (teamId) {
-        this.teamId = teamId;
-        this.projectService.getTeamProjects(teamId);
-
-        console.log(this.projects$);
+      if (this.teamId) {
+        this.projectService.getTeamProjects(this.teamId);
       }
     });
   }

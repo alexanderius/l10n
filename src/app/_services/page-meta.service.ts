@@ -1,16 +1,15 @@
-import { Injectable } from "@angular/core";
-import { Title } from "@angular/platform-browser";
-import { BehaviorSubject } from "rxjs";
+import { Injectable } from '@angular/core';
+import { Title } from '@angular/platform-browser';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PageMetaService {
-
-  constructor(private titleService: Title) {
-  }
-
+  public pageTitle$ = new BehaviorSubject(this.pageTitle);
   private _pageTitle = '';
+
+  constructor(private titleService: Title) {}
 
   public set pageTitle(value: string | null | undefined) {
     this._pageTitle = value ?? '';
@@ -21,6 +20,4 @@ export class PageMetaService {
   public get pageTitle(): string {
     return this._pageTitle;
   }
-
-  public pageTitle$ = new BehaviorSubject(this.pageTitle);
 }

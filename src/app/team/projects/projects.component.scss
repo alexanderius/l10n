@@ -12,14 +12,11 @@ main {
   gap: 20px;
 
   li {
-    position: relative;
-    display: flex;
-    border-radius: settings.$border-radius-default;
-    border: solid 1px settings.$border-color-default;
-    max-width: 400px;
+    max-width: 360px;
     width: 100%;
-    height: 250px;
-    background-color: #ffffff;
+    border: solid 1px settings.$border-color-default;
+    border-radius: settings.$border-radius-default;
+    background-color: settings.$background-light-gray;
     transition: box-shadow 0.3s ease-in-out;
     cursor: pointer;
 
@@ -29,28 +26,53 @@ main {
     }
 
     .tile {
+      position: relative;
       display: inline-flex;
       flex-direction: column;
-      padding: 40px;
+      padding: 15px;
       width: 100%;
-      height: 100%;
-      font-size: 1rem;
-      text-decoration: none;
-      color: #555555;
 
-      .name {
-        margin: 0px 0px 10px 0px;
+      .project-name {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: settings.$title-color;
+        text-transform: uppercase;
+      }
+
+      .project-id {
+        font-size: 0.75rem;
+        color: settings.$label-color;
+      }
+
+      .date-option {
+        display: flex;
+        flex-direction: column;
+        margin: 20px 0px 0px 0px;
+
+        p {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          max-width: 80%;
+          width: 100%;
+
+          span {
+            font-size: 0.75rem;
+            color: settings.$label-color;
+          }
+        }
       }
     }
+  }
 
-    a.new {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+  .new {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-      .material-icons {
-        font-size: 4rem;
-      }
+    .material-icons {
+      font-size: 4rem;
+      color: settings.$label-color;
     }
   }
 }

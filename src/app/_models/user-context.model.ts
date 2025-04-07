@@ -11,11 +11,12 @@ export interface UserContext {
   firstName: string;
   lastName: string;
   userEmail: string;
-  teams: Team[];
   phone?: string;
   passwordHash?: string;
   passwordSalt?: string;
   isLocked?: boolean;
   createdAt?: string;
   modifiedAt?: string;
+  teams: Team[];
+  currentTeamId?: string;
 }

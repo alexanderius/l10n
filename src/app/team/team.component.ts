@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
 
 import { PageMetaService } from '../_services/page-meta.service';
@@ -30,8 +29,16 @@ export class TeamComponent implements OnInit {
       const teamId = params['teamId'];
 
       if (teamId) {
-        console.log(teamId);
-        console.log(this.userContextService.userInfo$);
+        const currentContext = this.userContextService.getCurrentContext();
+
+        if (currentContext) {
+          const updatedContext = {
+            ...currentContext,
+            currentTeamId: teamId,
+          };
+
+          this.userContextService.updateUserInfo(updatedContext);
+        }
       }
     });
   }

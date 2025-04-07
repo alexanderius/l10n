@@ -2,7 +2,6 @@
 @use "../../styles/buttons";
 
 main {
-  margin-top: settings.$header-height;
   padding: 20px;
 
   @media (max-width: 768px) {

@@ -14,7 +14,7 @@ export interface Project {
   locales: any[];
   keys: any[];
   translations: any;
-  team: string;
+  teamId: string;
 }
 
 @Injectable({
@@ -53,18 +53,21 @@ export class ProjectService {
       });
   }
 
-  createProject(projectName: string): Observable<{ projectId: number }> {
+  createProject(
+    projectName: string,
+    teamId: string
+  ): Observable<{ projectId: number }> {
     return this.http
       .post<{ projectId: number; projectName: string }>(
-        'http://localhost:3000/projects',
-        { projectName }
+        'http://localhost:3000/create-project',
+        { projectName, teamId }
       )
       .pipe(
         tap((response) => {
           const newProject: Project = {
             id: response.projectId.toString(),
             name: projectName,
-            team: 'default',
+            teamId: teamId!,
             files: [],
             locales: [],
             keys: [],

@@ -3,8 +3,20 @@
     @for (project of (projects$ | async); track project.id) {
     <li>
       <a class="tile" [routerLink]="['/teams', teamId, 'projects', project.id]">
-        <span class="name">Project Name: {{ project.name }}</span>
-        <span class="date">Сreation Date: {{ project.name }}</span>
+        <p class="project-name">Name: {{ project.name }}</p>
+        <span class="project-id">(ID: {{ project.id }})</span>
+
+        <div class="date-option">
+          <p>
+            <span>Created:</span>
+            <span>{{ project.createdAt }}</span>
+          </p>
+
+          <p>
+            <span>Modified:</span>
+            <span>{{ project.modifiedAt }}</span>
+          </p>
+        </div>
 
         <button class="btn-delete" (click)="deleteProject($event, project.id)">
           <span class="material-icons">delete</span>
@@ -13,11 +25,8 @@
     </li>
     }
 
-    <li>
-      <a
-        class="tile new"
-        [routerLink]="['/teams', teamId, 'projects', 'create']"
-      >
+    <li class="new">
+      <a [routerLink]="['/teams', teamId, 'projects', 'create']">
         <span class="material-icons">add</span>
       </a>
     </li>
