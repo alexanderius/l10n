@@ -9,8 +9,9 @@ header {
   display: flex;
   align-items: center;
   margin: 0;
-  padding: 0 20px;
-  width: 100vw;
+  padding: 0px 20px;
+  max-width: 100%;
+  width: 100%;
   max-height: settings.$header-height;
   height: settings.$header-height;
   top: 0;
@@ -48,8 +49,7 @@ main {
   justify-self: flex-end;
   justify-content: center;
   align-items: center;
-  padding: 5px 20px;
   top: 0;
-  right: 0;
+  right: 20px;
   height: settings.$header-height;
 }

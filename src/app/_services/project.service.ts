@@ -10,7 +10,7 @@ export interface Project {
   name: string;
   createdAt?: string;
   modifiedAt?: string;
-  files: any[];
+  files: string[];
   locales: any[];
   keys: any[];
   translations: any;
@@ -98,82 +98,81 @@ export class ProjectService {
       });
   }
 
-  getProjectLocalesById(
-    projectId: string
-  ): Observable<{ project: any; locales: string[]; fileNames: string[] }> {
-    return this.http
-      .get<{ project: any; locales: string[]; fileNames: string[] }>(
-        `http://localhost:3000/projects/${projectId}/locales`
-      )
-      .pipe(
-        map((response) => response),
-        catchError((error) => {
-          console.error('Error fetching locales:', error);
-          return of({ project: {}, locales: [], fileNames: [] });
-        })
-      );
-  }
+  ///
 
-  getProjectKeyPathById(projectId: string): Observable<{
-    project: any;
-    keys: LocalizationKey[];
-    fileNames: string[];
-  }> {
-    return this.http
-      .get<{ project: any; keys: LocalizationKey[]; fileNames: string[] }>(
-        `http://localhost:3000/projects/${projectId}/keys`
-      )
-      .pipe(
-        map((response) => response),
-        catchError((error) => {
-          console.error('Error fetching keys:', error);
-          return of({ project: {}, keys: [], fileNames: [] });
-        })
-      );
-  }
+  // getProjectLocalesById(
+  //   projectId: string
+  // ): Observable<{ project: any; locales: string[]; fileNames: string[] }> {
+  //   return this.http
+  //     .get<{ project: any; locales: string[]; fileNames: string[] }>(
+  //       `http://localhost:3000/projects/${projectId}/locales`
+  //     )
+  //     .pipe(
+  //       map((response) => response),
+  //       catchError((error) => {
+  //         console.error('Error fetching locales:', error);
+  //         return of({ project: {}, locales: [], fileNames: [] });
+  //       })
+  //     );
+  // }
 
-  getProjectTranslationById(
-    projectId: string
-  ): Observable<{ project: any; translations: any[]; fileNames: string[] }> {
-    return this.http
-      .get<{ project: any; translations: any[]; fileNames: string[] }>(
-        `http://localhost:3000/projects/${projectId}/translations`
-      )
-      .pipe(
-        map((response) => response),
-        catchError((error) => {
-          console.error('Error fetching translations:', error);
-          return of({ project: {}, translations: [], fileNames: [] });
-        })
-      );
-  }
+  // getProjectKeyPathById(projectId: string): Observable<{
+  //   project: any;
+  //   keys: LocalizationKey[];
+  //   fileNames: string[];
+  // }> {
+  //   return this.http
+  //     .get<{ project: any; keys: LocalizationKey[]; fileNames: string[] }>(
+  //       `http://localhost:3000/projects/${projectId}/keys`
+  //     )
+  //     .pipe(
+  //       map((response) => response),
+  //       catchError((error) => {
+  //         console.error('Error fetching keys:', error);
+  //         return of({ project: {}, keys: [], fileNames: [] });
+  //       })
+  //     );
+  // }
+
+  // getProjectTranslationById(
+  //   projectId: string
+  // ): Observable<{ project: any; translations: any[]; fileNames: string[] }> {
+  //   return this.http
+  //     .get<{ project: any; translations: any[]; fileNames: string[] }>(
+  //       `http://localhost:3000/projects/${projectId}/translations`
+  //     )
+  //     .pipe(
+  //       map((response) => response),
+  //       catchError((error) => {
+  //         console.error('Error fetching translations:', error);
+  //         return of({ project: {}, translations: [], fileNames: [] });
+  //       })
+  //     );
+  // }
 
   saveTranslations(
     projectId: string,
     fileName: string,
+    localeCode: string,
     translations: { [key: string]: string | number | null }
   ): Observable<any> {
-    console.log(` Айди передаваемый в эндпоинт на сохранение ${projectId}`);
-    console.log(` ФайлНейм передаваемый в эндпоинт на сохранение ${fileName}`);
-
     return this.http.post<any>(`http://localhost:3000/`, {
       projectId: projectId,
       fileName: fileName,
+      localeCode: localeCode,
       translations: translations,
     });
   }
 
   updateTranslation(
     projectId: string,
-    fileName: string,
-    locale: string,
+    localeCode: string,
     keyId: string,
     value: string | number | null
   ): Observable<any> {
     return this.http.post<any>(`http://localhost:3000/translation/update`, {
       projectId,
-      fileName,
-      locale,
+      localeCode,
       keyId,
       value,
     });
