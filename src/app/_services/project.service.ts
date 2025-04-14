@@ -98,6 +98,34 @@ export class ProjectService {
       });
   }
 
+  saveTranslations(
+    projectId: string,
+    fileName: string,
+    localeCode: string,
+    translations: any
+  ): Observable<any> {
+    return this.http.post<any>(`http://localhost:3000/`, {
+      projectId: projectId,
+      fileName: fileName,
+      localeCode: localeCode,
+      translations: translations,
+    });
+  }
+
+  updateTranslation(
+    projectId: string,
+    localeCode: string,
+    keyId: string,
+    value: string | number | null
+  ): Observable<any> {
+    return this.http.post<any>(`http://localhost:3000/translation/update`, {
+      projectId,
+      localeCode,
+      keyId,
+      value,
+    });
+  }
+
   ///
 
   // getProjectLocalesById(
@@ -149,32 +177,4 @@ export class ProjectService {
   //       })
   //     );
   // }
-
-  saveTranslations(
-    projectId: string,
-    fileName: string,
-    localeCode: string,
-    translations: { [key: string]: string | number | null }
-  ): Observable<any> {
-    return this.http.post<any>(`http://localhost:3000/`, {
-      projectId: projectId,
-      fileName: fileName,
-      localeCode: localeCode,
-      translations: translations,
-    });
-  }
-
-  updateTranslation(
-    projectId: string,
-    localeCode: string,
-    keyId: string,
-    value: string | number | null
-  ): Observable<any> {
-    return this.http.post<any>(`http://localhost:3000/translation/update`, {
-      projectId,
-      localeCode,
-      keyId,
-      value,
-    });
-  }
 }

@@ -35,7 +35,6 @@ export class ProjectComponent {
   currentLocale: string | null = null;
   currentKeyId: string | null = null;
 
-  fileNames: string[] = [];
   scrollOffestX = 0;
 
   @HostListener('window:scroll', ['$event'])
@@ -56,7 +55,6 @@ export class ProjectComponent {
   ngOnInit(): void {
     const params = this.route.snapshot.params;
     this.projectId = params['id'];
-    this.fileNames = [];
 
     // this.projectService
     //   .getProjectLocalesById(this.projectId)
@@ -105,42 +103,6 @@ export class ProjectComponent {
     //   });
   }
 
-  flatObjToNested(keys: { id: string; humanKey: string }[]): LocalizationKey[] {
-    const result: LocalizationKey[] = [];
-    const map: { [key: string]: LocalizationKey } = {};
-
-    keys.forEach((keyObj) => {
-      const path = keyObj.humanKey.split('.');
-      let currentMap = map;
-      let currentResult = result;
-
-      for (let i = 0; i < path.length; i++) {
-        const segment = path[i];
-        const id = keyObj.id; // Сохраняем translationKeyId
-
-        if (!currentMap[segment]) {
-          const newKey: LocalizationKey = { id: id, humanKey: segment };
-          currentMap[segment] = newKey;
-
-          if (i === path.length - 1) {
-            currentResult.push(newKey);
-          } else {
-            newKey.children = [];
-            currentResult.push(newKey);
-          }
-        }
-
-        if (currentMap[segment].children) {
-          currentResult = currentMap[segment].children!;
-        }
-
-        currentMap = currentMap[segment].children ? {} : currentMap;
-      }
-    });
-
-    return result;
-  }
-
   filesDropped($event: any): any {
     console.log('file(s) dropped', $event);
 
@@ -173,14 +135,6 @@ export class ProjectComponent {
       const fileName = file.name;
       const localeCode = file.name.substring(0, file.name.indexOf('.'));
 
-      if (!this.fileNames) {
-        this.fileNames = [];
-      }
-
-      if (!this.fileNames.includes(fileName)) {
-        this.fileNames.push(fileName);
-      }
-
       if (this.locales.findIndex((l) => l.code === localeCode) < 0) {
         const localeObject: Locale = {
           code: localeCode,
@@ -200,12 +154,15 @@ export class ProjectComponent {
       for (let j = 0; j < flatKeys.length; j++) {
         const keyPathSegments = flatKeys[j].split('.');
 
-        this.translations[localeCode][flatKeys[j]] = {
-          e: false, // edit mode
-          v: null, // value
-          humanKey: flatKeys[j], // Сохраняем human-friendly ключ
-          translationKeyId: null, // Изначально ID нет
-        };
+        // Проверяем, существует ли уже перевод для этого ключа
+        if (!this.translations[localeCode][flatKeys[j]]) {
+          this.translations[localeCode][flatKeys[j]] = {
+            e: false, // edit mode
+            v: null, // value
+            humanKey: flatKeys[j], // Сохраняем human-friendly ключ
+            translationKeyId: null, // Изначально ID нет
+          };
+        }
 
         let current = { ...json };
 
@@ -230,35 +187,69 @@ export class ProjectComponent {
           this.projectId,
           fileName,
           localeCode,
-          this.getFlatTranslations(this.translations[localeCode])
+          this.translations[localeCode]
         )
         .pipe(take(1))
         .subscribe((response: any) => {
-          console.log('Translations saved successfully:', response);
+          // Обновляем переводы
+          for (const key in response.translations[localeCode]) {
+            if (!this.translations[localeCode]) {
+              this.translations[localeCode] = {};
+            }
+            this.translations[localeCode][key] =
+              response.translations[localeCode][key];
+          }
+          this.keys = this.flatObjToNested(response.keys);
 
-          // Обновляем translations и keys из ответа сервера
-          // this.translations = response.translations;
-          // this.keys = this.flatObjToNested(response.keys);
-          this.translations = response.translations;
-          this.keys = response.keys;
-
-          console.log(`Translation from server`, this.translations);
-          console.log(`Keys from server`, this.keys);
+          console.log(
+            'Translations saved successfully:',
+            this.keys,
+            this.translations
+          );
         });
-
-      // this.keys = this.utilsService.mergeArraysById(this.keys, keys);
     };
     reader.readAsText(file);
   }
 
-  private getFlatTranslations(localeTranslations: any): {
-    [key: string]: string | number | null;
-  } {
-    const flatTranslations: { [key: string]: string | number | null } = {};
-    for (const key in localeTranslations) {
-      flatTranslations[key] = localeTranslations[key].v;
-    }
-    return flatTranslations;
+  flatObjToNested(keys: { id: string; humanKey: string }[]): LocalizationKey[] {
+    const result: LocalizationKey[] = [];
+    const map: { [key: string]: LocalizationKey } = {};
+
+    keys.forEach((keyObj) => {
+      const path = keyObj.humanKey.split('.');
+      let currentMap = map;
+      let currentResult = result;
+
+      for (let i = 0; i < path.length; i++) {
+        const segment = path[i];
+        let id = keyObj.id;
+
+        // Если это раздел (не последний сегмент), используем его название в качестве id
+        if (i < path.length - 1) {
+          id = segment;
+        }
+
+        if (!currentMap[segment]) {
+          const newKey: LocalizationKey = { id: id, humanKey: segment };
+          currentMap[segment] = newKey;
+
+          if (i === path.length - 1) {
+            currentResult.push(newKey);
+          } else {
+            newKey.children = [];
+            currentResult.push(newKey);
+          }
+        }
+
+        if (currentMap[segment].children) {
+          currentResult = currentMap[segment].children!;
+        }
+
+        currentMap = currentMap[segment].children ? {} : currentMap;
+      }
+    });
+
+    return result;
   }
 
   getFlatKeys(obj: any, parentKey = ''): any[] {
@@ -301,8 +292,6 @@ export class ProjectComponent {
   editMode(locale: string, keyId: string): void {
     const currentEditKey = this.translations[locale][keyId];
 
-    console.log(keyId);
-
     if (currentEditKey) {
       // Turn off editing mode for the previous cell
       if (this.currentLocale && this.currentKeyId) {
@@ -321,9 +310,8 @@ export class ProjectComponent {
   }
 
   exitEditMode(locale: string, keyId: string): void {
-    console.log(keyId);
-
     const currentEditKey = this.translations[locale][keyId];
+
     if (currentEditKey) {
       currentEditKey.e = false;
 
@@ -348,47 +336,23 @@ export class ProjectComponent {
   }
 
   downloadDocs(locale: any): void {
-    if (this.fileNames.length === 0) {
-      console.log('No files uploaded. Please upload a file first.');
-      return;
-    }
+    const localeCode = locale.code;
+    const localeTranslations = this.translations[localeCode];
+    const flatTranslations: { [key: string]: string | number | null } = {};
 
-    console.log(this.translations);
-
-    this.fileNames.forEach((fileName) => {
-      const localeCode = locale.code;
-
-      const localeTranslations = this.translations[localeCode];
-      const flatTranslations: { [key: string]: string | number | null } = {};
-
-      Object.keys(localeTranslations).forEach((key) => {
-        flatTranslations[key] = localeTranslations[key].v;
-      });
-
-      const nestedTranslations = this.restoreNestedObj(flatTranslations);
-
-      const blob = new Blob([JSON.stringify(nestedTranslations, null, 2)], {
-        type: 'application/json;charset=utf-8',
-      });
-
-      saveAs(blob, `${localeCode}-update.json`);
-
-      console.log(`Отправка из сохарнки`, flatTranslations);
-
-      this.projectService
-        .saveTranslations(
-          this.projectId,
-          fileName,
-          localeCode,
-          flatTranslations
-        )
-        .subscribe((res) =>
-          console.log(`Data saved successfully for ${fileName}:`, res)
-        );
+    Object.keys(localeTranslations).forEach((key) => {
+      flatTranslations[key] = localeTranslations[key].v;
     });
+
+    const nestedTranslations = this.restoreNestedObj(flatTranslations);
+
+    const blob = new Blob([JSON.stringify(nestedTranslations, null, 2)], {
+      type: 'application/json;charset=utf-8',
+    });
+
+    saveAs(blob, `${localeCode}-update.json`);
   }
 
-  // Transforming a flatobject into a nested
   restoreNestedObj(flatObject: { [key: string]: any }): any {
     const result: { [key: string]: any } = {};
 
