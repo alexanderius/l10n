@@ -3,20 +3,15 @@ import { Component, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { DropZoneDirective } from '../../_directives/drop-zone.directive';
-import { LocalizationKey } from '../../_models/localization-key.model';
 import { saveAs } from 'file-saver';
-
-import { PageMetaService } from '../../_services/page-meta.service';
-import { UserContextService } from '../../_services/user-context.service';
-import { ProjectService, Project } from '../../_services/project.service';
-import { UtilsService } from '../../_services/utils.service';
 import { take } from 'rxjs';
 
-export interface Locale {
-  code: string;
-  name?: string;
-  isRtl: boolean;
-}
+import { LocalizationKey } from '../../_models/localization-key.model';
+import { Locale } from '../../_models/localization-locale.model';
+import { Project } from '../../_models/project.model';
+
+import { PageMetaService } from '../../_services/page-meta.service';
+import { ProjectService } from '../../_services/project.service';
 
 @Component({
   imports: [CommonModule, FormsModule, NgTemplateOutlet, DropZoneDirective],
@@ -39,13 +34,12 @@ export class ProjectComponent {
 
   @HostListener('window:scroll', ['$event'])
   onWindowScroll(event: Event) {
-    this.scrollOffestX = window.scrollX; // horizontal scroll position
+    // horizontal scroll position
+    this.scrollOffestX = window.scrollX;
   }
 
   constructor(
     private pageMetaService: PageMetaService,
-    private userContextService: UserContextService,
-    private utilsService: UtilsService,
     private projectService: ProjectService,
     private route: ActivatedRoute
   ) {
@@ -56,51 +50,45 @@ export class ProjectComponent {
     const params = this.route.snapshot.params;
     this.projectId = params['id'];
 
-    // this.projectService
-    //   .getProjectLocalesById(this.projectId)
-    //   .subscribe((data) => {
-    //     this.project = data.project;
-    //     this.fileNames = data.fileNames;
-    //     this.locales = data.locales.map((locale) => ({
-    //       code: locale,
-    //       name: locale,
-    //       isRtl: false,
-    //     }));
+    this.projectService
+      .getProjectLocalesById(this.projectId)
+      .subscribe((data) => {
+        this.project = data.project;
+        this.locales = data.locales.map((locale) => ({
+          ...locale,
+          isRtl: locale.isRtl,
+        }));
+        console.log('Locales loaded:', this.locales);
+      });
 
-    //     console.log('Locales loaded:', this.locales);
-    //   });
+    this.projectService.getProjectKeysById(this.projectId).subscribe((data) => {
+      this.project = data.project;
+      this.keys = this.flatObjToNested(data.keys);
+      console.log('Keys loaded:', this.keys);
+    });
 
-    // this.projectService
-    //   .getProjectKeyPathById(this.projectId)
-    //   .subscribe((data) => {
-    //     this.project = data.project;
-    //     this.fileNames = data.fileNames;
-    //     this.keys = this.flatObjToNested(data.keys);
+    this.projectService
+      .getProjectTranslationById(this.projectId)
+      .subscribe((data) => {
+        this.project = data.project;
 
-    //     console.log('Keys loaded:', this.keys);
-    //   });
+        this.translations = {};
+        data.translations.forEach((translation: any) => {
+          const locale = translation.localeCode;
+          const keyId = translation.keyId;
+          const value = translation.value;
 
-    // this.projectService
-    //   .getProjectTranslationById(this.projectId)
-    //   .subscribe((data) => {
-    //     this.project = data.project;
-    //     this.fileNames = data.fileNames;
+          if (!this.translations[locale]) {
+            this.translations[locale] = {};
+          }
 
-    //     data.translations.forEach((translation) => {
-    //       const locale = translation.fileName.split('.')[0];
-
-    //       if (!this.translations[locale]) {
-    //         this.translations[locale] = {};
-    //       }
-
-    //       this.translations[locale][translation.keyPath] = {
-    //         v: translation.value,
-    //         e: false,
-    //       };
-    //     });
-
-    //     console.log('Translations loaded:', this.translations);
-    //   });
+          this.translations[locale][keyId] = {
+            v: value,
+            e: false,
+          };
+        });
+        console.log('Translations loaded:', this.translations);
+      });
   }
 
   filesDropped($event: any): any {
@@ -128,7 +116,7 @@ export class ProjectComponent {
     }, 3000);
   }
 
-  /* JSON processing  */
+  // JSON processing
   importFromJson(file: File): void {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -154,13 +142,13 @@ export class ProjectComponent {
       for (let j = 0; j < flatKeys.length; j++) {
         const keyPathSegments = flatKeys[j].split('.');
 
-        // Проверяем, существует ли уже перевод для этого ключа
+        // Check if there is already a translation for this key
         if (!this.translations[localeCode][flatKeys[j]]) {
           this.translations[localeCode][flatKeys[j]] = {
             e: false, // edit mode
             v: null, // value
-            humanKey: flatKeys[j], // Сохраняем human-friendly ключ
-            translationKeyId: null, // Изначально ID нет
+            humanKey: flatKeys[j], // Save human-friendly key
+            translationKeyId: null, // Initially no ID
           };
         }
 
@@ -181,17 +169,21 @@ export class ProjectComponent {
         }
       }
 
-      // Отправляем на сервер и получаем полные данные для рендеринга
+      const locale = this.locales.find((l) => l.code === localeCode);
+      const isRtl = locale ? locale.isRtl : false;
+
+      // Send to the server and receive complete data for rendering
       this.projectService
         .saveTranslations(
           this.projectId,
           fileName,
           localeCode,
-          this.translations[localeCode]
+          this.translations[localeCode],
+          isRtl
         )
         .pipe(take(1))
         .subscribe((response: any) => {
-          // Обновляем переводы
+          // Updating translations
           for (const key in response.translations[localeCode]) {
             if (!this.translations[localeCode]) {
               this.translations[localeCode] = {};
@@ -224,7 +216,7 @@ export class ProjectComponent {
         const segment = path[i];
         let id = keyObj.id;
 
-        // Если это раздел (не последний сегмент), используем его название в качестве id
+        // If this is a section (not the last segment), use its name as the ID
         if (i < path.length - 1) {
           id = segment;
         }
@@ -315,7 +307,7 @@ export class ProjectComponent {
     if (currentEditKey) {
       currentEditKey.e = false;
 
-      // Вызываем обновление перевода для текущего ключа
+      // Call the translation update for the current key
       this.projectService
         .updateTranslation(
           this.projectId,

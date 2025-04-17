@@ -1,5 +1,5 @@
 export interface LocalizationKey {
   id: string;
-  humanKey?: string;
+  humanKey: string;
   children?: LocalizationKey[];
 }

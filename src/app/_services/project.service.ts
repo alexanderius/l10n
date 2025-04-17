@@ -2,20 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, catchError, map, Observable, of, tap } from 'rxjs';
 
-import { UserContextService } from './user-context.service';
 import { LocalizationKey } from '../_models/localization-key.model';
-
-export interface Project {
-  id: string;
-  name: string;
-  createdAt?: string;
-  modifiedAt?: string;
-  files: string[];
-  locales: any[];
-  keys: any[];
-  translations: any;
-  teamId: string;
-}
+import { Locale } from '../_models/localization-locale.model';
+import { Project } from '../_models/project.model';
 
 @Injectable({
   providedIn: 'root',
@@ -24,10 +13,7 @@ export class ProjectService {
   private projectsSubject = new BehaviorSubject<Project[]>([]);
   projects$: Observable<Project[]> = this.projectsSubject.asObservable();
 
-  constructor(
-    private userContextService: UserContextService,
-    private http: HttpClient
-  ) {}
+  constructor(private http: HttpClient) {}
 
   getTeamProjects(teamId: string): void {
     this.http
@@ -102,13 +88,15 @@ export class ProjectService {
     projectId: string,
     fileName: string,
     localeCode: string,
-    translations: any
+    translations: any,
+    isRtl: boolean
   ): Observable<any> {
     return this.http.post<any>(`http://localhost:3000/`, {
       projectId: projectId,
       fileName: fileName,
       localeCode: localeCode,
       translations: translations,
+      isRtl: isRtl,
     });
   }
 
@@ -126,55 +114,52 @@ export class ProjectService {
     });
   }
 
-  ///
+  getProjectLocalesById(
+    projectId: string
+  ): Observable<{ project: any; locales: Locale[] }> {
+    return this.http
+      .get<{ project: any; locales: Locale[] }>(
+        `http://localhost:3000/projects/${projectId}/locales`
+      )
+      .pipe(
+        map((response) => response),
+        catchError((error) => {
+          console.error('Error fetching locales:', error);
+          return of({ project: {}, locales: [] });
+        })
+      );
+  }
 
-  // getProjectLocalesById(
-  //   projectId: string
-  // ): Observable<{ project: any; locales: string[]; fileNames: string[] }> {
-  //   return this.http
-  //     .get<{ project: any; locales: string[]; fileNames: string[] }>(
-  //       `http://localhost:3000/projects/${projectId}/locales`
-  //     )
-  //     .pipe(
-  //       map((response) => response),
-  //       catchError((error) => {
-  //         console.error('Error fetching locales:', error);
-  //         return of({ project: {}, locales: [], fileNames: [] });
-  //       })
-  //     );
-  // }
+  getProjectKeysById(projectId: string): Observable<{
+    project: any;
+    keys: LocalizationKey[];
+  }> {
+    return this.http
+      .get<{ project: any; keys: LocalizationKey[] }>(
+        `http://localhost:3000/projects/${projectId}/keys`
+      )
+      .pipe(
+        map((response) => response),
+        catchError((error) => {
+          console.error('Error fetching keys:', error);
+          return of({ project: {}, keys: [] });
+        })
+      );
+  }
 
-  // getProjectKeyPathById(projectId: string): Observable<{
-  //   project: any;
-  //   keys: LocalizationKey[];
-  //   fileNames: string[];
-  // }> {
-  //   return this.http
-  //     .get<{ project: any; keys: LocalizationKey[]; fileNames: string[] }>(
-  //       `http://localhost:3000/projects/${projectId}/keys`
-  //     )
-  //     .pipe(
-  //       map((response) => response),
-  //       catchError((error) => {
-  //         console.error('Error fetching keys:', error);
-  //         return of({ project: {}, keys: [], fileNames: [] });
-  //       })
-  //     );
-  // }
-
-  // getProjectTranslationById(
-  //   projectId: string
-  // ): Observable<{ project: any; translations: any[]; fileNames: string[] }> {
-  //   return this.http
-  //     .get<{ project: any; translations: any[]; fileNames: string[] }>(
-  //       `http://localhost:3000/projects/${projectId}/translations`
-  //     )
-  //     .pipe(
-  //       map((response) => response),
-  //       catchError((error) => {
-  //         console.error('Error fetching translations:', error);
-  //         return of({ project: {}, translations: [], fileNames: [] });
-  //       })
-  //     );
-  // }
+  getProjectTranslationById(
+    projectId: string
+  ): Observable<{ project: any; translations: any[] }> {
+    return this.http
+      .get<{ project: any; translations: any[] }>(
+        `http://localhost:3000/projects/${projectId}/translations`
+      )
+      .pipe(
+        map((response) => response),
+        catchError((error) => {
+          console.error('Error fetching translations:', error);
+          return of({ project: {}, translations: [] });
+        })
+      );
+  }
 }

@@ -1,5 +1,5 @@
 <div class="container drop-zone" appDropZone (fileDrop)="filesDropped($event)">
-  @if(keys.length == 0 || locales.length == 0) {
+  @if(keys.length == 0 && locales.length == 0) {
   <div class="drag-files-mesage">Drag & drop files here</div>
   } @else {
   <div class="matrix-wrapper">
