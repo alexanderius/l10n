@@ -4,7 +4,18 @@ import { BehaviorSubject, catchError, map, Observable, of, tap } from 'rxjs';
 
 import { LocalizationKey } from '../_models/localization-key.model';
 import { Locale } from '../_models/localization-locale.model';
-import { Project } from '../_models/project.model';
+
+export interface Project {
+  id: string;
+  name: string;
+  createdAt?: string;
+  modifiedAt?: string;
+  files: string[];
+  locales: any[];
+  keys: any[];
+  translations: any;
+  teamId: string;
+}
 
 @Injectable({
   providedIn: 'root',

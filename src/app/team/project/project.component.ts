@@ -6,9 +6,14 @@ import { DropZoneDirective } from '../../_directives/drop-zone.directive';
 import { saveAs } from 'file-saver';
 import { take } from 'rxjs';
 
-import { LocalizationKey } from '../../_models/localization-key.model';
+import {
+  LocalizationKey,
+  TranslationEntry,
+  Translations,
+  LocaleObject,
+} from '../../_models/localization-key.model';
 import { Locale } from '../../_models/localization-locale.model';
-import { Project } from '../../_models/project.model';
+import { Project } from '../../_services/project.service';
 
 import { PageMetaService } from '../../_services/page-meta.service';
 import { ProjectService } from '../../_services/project.service';
@@ -327,18 +332,38 @@ export class ProjectComponent {
     }
   }
 
-  downloadDocs(locale: any): void {
-    const localeCode = locale.code;
-    const localeTranslations = this.translations[localeCode];
-    const flatTranslations: { [key: string]: string | number | null } = {};
+  // Create the resulting file for download
+  buildResultFile(
+    keys: LocalizationKey[],
+    translations: Translations
+  ): LocaleObject {
+    const result: LocaleObject = {};
 
-    Object.keys(localeTranslations).forEach((key) => {
-      flatTranslations[key] = localeTranslations[key].v;
+    keys.forEach((section) => {
+      const sectionName = section.humanKey;
+      result[sectionName] = {};
+
+      section.children?.forEach((child) => {
+        const key = child.humanKey;
+        const translationEntry = translations[child.id];
+        result[sectionName][key] = translationEntry ? translationEntry.v : '';
+      });
     });
 
-    const nestedTranslations = this.restoreNestedObj(flatTranslations);
+    return result;
+  }
 
-    const blob = new Blob([JSON.stringify(nestedTranslations, null, 2)], {
+  downloadFile(locale: Locale): void {
+    const localeCode = locale.code;
+    const keys: LocalizationKey[] = this.keys;
+    const localeTranslations: Translations = this.translations[localeCode];
+
+    const finalLocaleObject: LocaleObject = this.buildResultFile(
+      keys,
+      localeTranslations
+    );
+
+    const blob = new Blob([JSON.stringify(finalLocaleObject, null, 2)], {
       type: 'application/json;charset=utf-8',
     });
 
