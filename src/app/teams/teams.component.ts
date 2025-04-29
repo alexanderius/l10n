@@ -80,7 +80,7 @@ export class TeamsComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Ошибка при удалении команды:', error);
+        console.error('Error deleting command:', error);
       },
     });
   }

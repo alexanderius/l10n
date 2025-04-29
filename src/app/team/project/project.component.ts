@@ -8,7 +8,6 @@ import { take } from 'rxjs';
 
 import {
   LocalizationKey,
-  TranslationEntry,
   Translations,
   LocaleObject,
 } from '../../_models/localization-key.model';
@@ -118,7 +117,7 @@ export class ProjectComponent {
 
     setTimeout(() => {
       console.log(this.translations);
-    }, 3000);
+    }, 5000);
   }
 
   // JSON processing
@@ -127,8 +126,11 @@ export class ProjectComponent {
     reader.onload = (e) => {
       const fileName = file.name;
       const localeCode = file.name.substring(0, file.name.indexOf('.'));
+      const isNewLocale =
+        this.locales.findIndex((l) => l.code === localeCode) < 0;
 
-      if (this.locales.findIndex((l) => l.code === localeCode) < 0) {
+      // Create a local one if it doesn't exist yet
+      if (isNewLocale) {
         const localeObject: Locale = {
           code: localeCode,
           name: fileName,
@@ -145,21 +147,22 @@ export class ProjectComponent {
       const flatKeys = this.getFlatKeys(json);
 
       for (let j = 0; j < flatKeys.length; j++) {
+        const key = flatKeys[j];
         const keyPathSegments = flatKeys[j].split('.');
 
-        // Check if there is already a translation for this key
-        if (!this.translations[localeCode][flatKeys[j]]) {
-          this.translations[localeCode][flatKeys[j]] = {
-            e: false, // edit mode
-            v: null, // value
-            humanKey: flatKeys[j], // Save human-friendly key
-            translationKeyId: null, // Initially no ID
+        // Create or update a translation for a key
+        if (!this.translations[localeCode][key]) {
+          this.translations[localeCode][key] = {
+            e: false,
+            v: null,
+            humanKey: key,
+            translationKeyId: null,
           };
         }
 
         let current = { ...json };
-
         let keyPathSegmentIndex = 0;
+
         for (const keyPathSegment of keyPathSegments) {
           keyPathSegmentIndex++;
           // check if the current object has the key
@@ -177,22 +180,28 @@ export class ProjectComponent {
       const locale = this.locales.find((l) => l.code === localeCode);
       const isRtl = locale ? locale.isRtl : false;
 
+      // Save only new or changed translations on the server
+      const translationsToSave: any = {};
+      flatKeys.forEach((key) => {
+        translationsToSave[key] = this.translations[localeCode][key];
+      });
+
       // Send to the server and receive complete data for rendering
       this.projectService
         .saveTranslations(
           this.projectId,
           fileName,
           localeCode,
-          this.translations[localeCode],
+          translationsToSave,
           isRtl
         )
         .pipe(take(1))
         .subscribe((response: any) => {
-          // Updating translations
+          if (!this.translations[localeCode]) {
+            this.translations[localeCode] = {};
+          }
+          // Updating translations by keys
           for (const key in response.translations[localeCode]) {
-            if (!this.translations[localeCode]) {
-              this.translations[localeCode] = {};
-            }
             this.translations[localeCode][key] =
               response.translations[localeCode][key];
           }
@@ -276,7 +285,6 @@ export class ProjectComponent {
 
       // check if the value is an object and not null
       if (typeof obj[key] === 'object' && obj[key] !== null) {
-        // Recursively get children
         item.children = this.getKeysWithChildren(obj[key]);
       }
 
@@ -314,12 +322,7 @@ export class ProjectComponent {
 
       // Call the translation update for the current key
       this.projectService
-        .updateTranslation(
-          this.projectId,
-          locale,
-          keyId, // Use TranslationKeyId
-          currentEditKey.v
-        )
+        .updateTranslation(this.projectId, locale, keyId, currentEditKey.v)
         .pipe(take(1))
         .subscribe({
           next: (response) => {

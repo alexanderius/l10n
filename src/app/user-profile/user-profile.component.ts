@@ -33,11 +33,11 @@ export class UserProfileComponent implements OnInit {
       })
       .subscribe({
         next: (userInfo: any) => {
-          console.log('Данные с сервера:', userInfo);
+          console.log('Data from server:', userInfo);
           this.userContextService.updateUserInfo(userInfo);
 
           console.log(
-            'Данные с заполненного контекста:',
+            'Data from filled context:',
             this.userContextService.getCurrentContext()
           );
 
